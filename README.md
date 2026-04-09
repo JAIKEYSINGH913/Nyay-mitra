@@ -81,3 +81,19 @@ docker build -t nyay-backend .
 - **Sovereign Vault**: Environment variables are managed via decentralized `.env` configurations.
 - **Telemetry Strip**: Real-time system health Monitoring.
 - **Micro-animations**: Enhanced UX for deterministic AI states.
+
+
+
+
+
+
+
+
+(nyay-vani> $env:PYTHONPATH="."
+nyay-vani> uvicorn app.main:app --host 0.0.0.0 --port 8003 --reload)
+
+(\nyay-audit> $env:PYTHONPATH="."
+backend\nyay-audit> uvicorn app.main:app --host 0.0.0.0 --port 8001 --reload)
+
+(\nyay-bridge> $env:PYTHONPATH="."
+backend\nyay-bridge> uvicorn app.main:app --host 0.0.0.0 --port 8002 --reload)
