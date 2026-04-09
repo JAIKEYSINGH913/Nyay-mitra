@@ -1,0 +1,47 @@
+[
+    {
+        "ipc": "302",
+        "bns": "103",
+        "topic": "Murder",
+        "ipc_text": "Whoever commits murder shall be punished with death, or imprisonment for life, and shall also be liable to fine.",
+        "bns_text": "Whoever commits murder shall be punished with death, or imprisonment for life, and shall also be liable to fine.",
+        "punishment_change": "No major change in quantum, but structural re-ordering.",
+        "description_change": "Definition remains largely similar."
+    },
+    {
+        "ipc": "420",
+        "bns": "318",
+        "topic": "Cheating and dishonestly inducing delivery of property",
+        "ipc_text": "Whoever cheats and thereby dishonestly induces the person deceived to deliver any property...",
+        "bns_text": "Whoever cheats and thereby dishonestly induces the person deceived to deliver any property...",
+        "punishment_change": "Similar imprisonment terms.",
+        "description_change": "Consolidated under 'Cheating' in BNS."
+    },
+    {
+        "ipc": "376",
+        "bns": "64",
+        "topic": "Rape",
+        "ipc_text": "Whoever commits rape, shall be punished with rigorous imprisonment...",
+        "bns_text": "Whoever commits rape, shall be punished with rigorous imprisonment...",
+        "punishment_change": "Enhanced minimum sentences in certain aggravated cases.",
+        "description_change": "Broader definitions and gender-neutrality in certain sub-sections."
+    },
+    {
+        "ipc": "124A",
+        "bns": "152",
+        "topic": "Sedition / Acts endangering sovereignty",
+        "ipc_text": "Whoever by words, either spoken or written... brings into hatred or contempt... the Government...",
+        "bns_text": "Whoever, purposely or knowingly, by words, either spoken or written... excites secession or armed rebellion or subversive activities...",
+        "punishment_change": "Term 'Sedition' removed. Focus on sovereignty and integrity.",
+        "description_change": "Significant change. Sedition replaced by 'Acts endangering sovereignty'."
+    },
+    {
+        "ipc": "307",
+        "bns": "109",
+        "topic": "Attempt to Murder",
+        "ipc_text": "Whoever does any act with such intention or knowledge...",
+        "bns_text": "Whoever does any act with such intention or knowledge...",
+        "punishment_change": "Retained similar structure.",
+        "description_change": "No major definition change."
+    }
+]

@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+python-jose[cryptography]
+neo4j
+transformers
+torch
+pydantic
+python-dotenv
+httpx
+spacy

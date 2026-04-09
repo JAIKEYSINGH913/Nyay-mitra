@@ -1,0 +1,14 @@
+fastapi
+uvicorn
+langchain
+langchain-community
+langchain-openai
+llama-index
+transformers
+torch
+sentence-transformers
+numpy
+python-dotenv
+httpx
+pydantic
+scikit-learn

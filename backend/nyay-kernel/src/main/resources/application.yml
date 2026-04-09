@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: nyay-kernel
+  
+  data:
+    neo4j:
+      uri: ${NEO4J_URI}
+      authentication:
+        username: ${NEO4J_USER}
+        password: ${NEO4J_PASSWORD}
+
+  security:
+    jwt:
+      secret-key: ${JWT_SECRET_KEY}
+      expiration: 86400000
+
+  ai:
+    openai:
+      api-key: ${LLAMA_API_KEY}
+      base-url: ${LLAMA_BASE_URL}
+      chat:
+        options:
+          model: ${AI_MODEL}
+
+server:
+  port: 8080
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html

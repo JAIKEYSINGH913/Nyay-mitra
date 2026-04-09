@@ -1,0 +1,167 @@
+@import "tailwindcss";
+
+/* ─────────────────────────────────────────────────────
+   THE SOVEREIGN COCKPIT (Obsidian Protocol) DESIGN TOKENS
+───────────────────────────────────────────────────── */
+:root {
+  /* THE VOID & THE PULSE */
+  --bg-primary: #131313;
+  --bg-secondary: #0e0e0e; /* surface_container_lowest */
+  --bg-surface-low: #1c1b1b;
+  --bg-surface-high: #2a2a2a;
+  --bg-surface-highest: #353534;
+  
+  --primary-container: #e01e22; /* Industrial Red */
+  --on-primary-container: #fff7f6;
+  --secondary-container: #0043eb; /* Electric Blue */
+  --on-secondary-container: #c6ceff;
+  
+  --text-primary: #e5e2e1;
+  --text-secondary: #e7bdb8; /* on-surface-variant */
+  --text-muted: rgba(229, 226, 225, 0.4);
+  
+  --accent-red: #e01e22;
+  --accent-blue: #0043eb;
+  
+  --border-color: rgba(93, 63, 60, 0.15); /* outline_variant at 15% */
+  --glass-bg: rgba(53, 53, 52, 0.4);
+  
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --font-label: 'Space Grotesk', sans-serif;
+}
+
+/* ─────────────────────────────────────────────────────
+   BASE & RESET
+───────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  border-radius: 0 !important; /* HARD EDGES: 0px border radius as per THE SOVEREIGN COCKPIT */
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  transition: background 0.4s ease, color 0.4s ease;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ─────────────────────────────────────────────────────
+   SIGNATURE TEXTURES & UTILITIES
+───────────────────────────────────────────────────── */
+.node-network {
+  background-image: radial-gradient(var(--accent-red) 0.5px, transparent 0.5px);
+  background-size: 24px 24px;
+  opacity: 0.1;
+}
+
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border-color);
+}
+
+.monolithic-border-l {
+  border-left: 2px solid var(--primary-container);
+}
+
+.monolithic-border-b {
+  border-bottom: 2px solid var(--primary-container);
+}
+
+.telemetry-label {
+  font-family: var(--font-label);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+  color: var(--text-muted);
+}
+
+.system-value {
+  font-family: var(--font-label);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+/* ─────────────────────────────────────────────────────
+   TYPOGRAPHY
+───────────────────────────────────────────────────── */
+h1, h2, h3, h4, .font-space {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+}
+
+.tracking-tighter-industrial {
+  letter-spacing: -0.05em;
+}
+
+/* ─────────────────────────────────────────────────────
+   BUTTONS (Industrial Cockpit Style)
+───────────────────────────────────────────────────── */
+.btn-industrial {
+  background: var(--primary-container);
+  color: var(--on-primary-container);
+  font-family: var(--font-label);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  padding: 1rem 2.5rem;
+  transition: all 0.2s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-industrial:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.btn-industrial-outline {
+  background: transparent;
+  color: var(--text-primary);
+  font-family: var(--font-label);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  padding: 1rem 2.5rem;
+  border: 1px solid var(--border-color);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.btn-industrial-outline:hover {
+  background: var(--bg-surface-high);
+  border-color: var(--text-primary);
+}
+
+/* ─────────────────────────────────────────────────────
+   ANIMATIONS
+───────────────────────────────────────────────────── */
+@keyframes scan-line {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+
+.scan-line {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--primary-container), transparent);
+  opacity: 0.1;
+  animation: scan-line 8s linear infinite;
+  pointer-events: none;
+  z-index: 999;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--bg-primary); }
+::-webkit-scrollbar-thumb { background: var(--primary-container); }

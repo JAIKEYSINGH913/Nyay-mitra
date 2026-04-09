@@ -1,0 +1,211 @@
+[
+    {
+        "id": "CASE-1973-01",
+        "title": "Kesavananda Bharati v. State of Kerala",
+        "year": 1973,
+        "citations": [
+            {
+                "type": "Act",
+                "target": "CONST-1950",
+                "label": "Constitution of India, 1950"
+            },
+            {
+                "type": "Section",
+                "target": "CONST-368",
+                "label": "Article 368"
+            },
+            {
+                "type": "Case",
+                "target": "CASE-1967-01",
+                "label": "Golaknath v. State of Punjab"
+            }
+        ],
+        "text": "The Supreme Court held that the Parliament cannot alter the basic structure of the Constitution. It overruled Golaknath v. State of Punjab."
+    },
+    {
+        "id": "CASE-1967-01",
+        "title": "Golaknath v. State of Punjab",
+        "year": 1967,
+        "citations": [
+            {
+                "type": "Act",
+                "target": "CONST-1950",
+                "label": "Constitution of India, 1950"
+            },
+            {
+                "type": "Section",
+                "target": "CONST-13",
+                "label": "Article 13"
+            }
+        ],
+        "text": "The Court ruled that Parliament could not curtail any of the Fundamental Rights in the Constitution."
+    },
+    {
+        "id": "CASE-1978-01",
+        "title": "Maneka Gandhi v. Union of India",
+        "year": 1978,
+        "citations": [
+            {
+                "type": "Act",
+                "target": "CONST-1950",
+                "label": "Constitution of India, 1950"
+            },
+            {
+                "type": "Section",
+                "target": "CONST-21",
+                "label": "Article 21"
+            },
+            {
+                "type": "Section",
+                "target": "CONST-14",
+                "label": "Article 14"
+            },
+            {
+                "type": "Section",
+                "target": "CONST-19",
+                "label": "Article 19"
+            }
+        ],
+        "text": "The Court expanded the meaning of 'personal liberty' under Article 21 to include a wide variety of rights."
+    },
+    {
+        "id": "CASE-1980-01",
+        "title": "Minerva Mills v. Union of India",
+        "year": 1980,
+        "citations": [
+            {
+                "type": "Case",
+                "target": "CASE-1973-01",
+                "label": "Kesavananda Bharati v. State of Kerala"
+            },
+            {
+                "type": "Section",
+                "target": "CONST-368",
+                "label": "Article 368"
+            }
+        ],
+        "text": "The Court struck down clauses of the 42nd Amendment which sought to limit judicial review, reaffirming the Basic Structure doctrine."
+    },
+    {
+        "id": "CASE-1994-01",
+        "title": "S.R. Bommai v. Union of India",
+        "year": 1994,
+        "citations": [
+            {
+                "type": "Act",
+                "target": "CONST-1950",
+                "label": "Constitution of India, 1950"
+            },
+            {
+                "type": "Section",
+                "target": "CONST-356",
+                "label": "Article 356"
+            }
+        ],
+        "text": "The Court discussed the provisions of Article 356 regarding the imposition of President's Rule in states."
+    },
+    {
+        "id": "CASE-2017-01",
+        "title": "K.S. Puttaswamy v. Union of India",
+        "year": 2017,
+        "citations": [
+            {
+                "type": "Act",
+                "target": "CONST-1950",
+                "label": "Constitution of India, 1950"
+            },
+            {
+                "type": "Section",
+                "target": "CONST-21",
+                "label": "Article 21"
+            },
+            {
+                "type": "Case",
+                "target": "CASE-1978-01",
+                "label": "Maneka Gandhi v. Union of India"
+            },
+            {
+                "type": "Case",
+                "target": "CASE-1954-01",
+                "label": "M.P. Sharma v. Satish Chandra"
+            },
+            {
+                "type": "Case",
+                "target": "CASE-1962-01",
+                "label": "Kharak Singh v. State of UP"
+            }
+        ],
+        "text": "The Court unanimously held that the Right to Privacy is a fundamental right under Article 21. It overruled M.P. Sharma and Kharak Singh."
+    },
+    {
+        "id": "CASE-1954-01",
+        "title": "M.P. Sharma v. Satish Chandra",
+        "year": 1954,
+        "citations": [],
+        "text": "An early judgment holding that the Constitution did not specifically protect the right to privacy."
+    },
+    {
+        "id": "CASE-1962-01",
+        "title": "Kharak Singh v. State of UP",
+        "year": 1962,
+        "citations": [
+            {
+                "type": "Section",
+                "target": "CONST-21",
+                "label": "Article 21"
+            }
+        ],
+        "text": "The Court held that 'personal liberty' was compendious but did not include privacy."
+    },
+    {
+        "id": "CASE-1985-01",
+        "title": "Shah Bano Begum Case",
+        "year": 1985,
+        "citations": [
+            {
+                "type": "Act",
+                "target": "IPC-1860",
+                "label": "Indian Penal Code, 1860"
+            },
+            {
+                "type": "Section",
+                "target": "IPC-125",
+                "label": "Section 125 (CrPC)"
+            }
+        ],
+        "text": "The Court upheld the right of a Muslim woman to alimony, sparking a debate on personal laws."
+    },
+    {
+        "id": "CASE-2018-01",
+        "title": "Navtej Singh Johar v. Union of India",
+        "year": 2018,
+        "citations": [
+            {
+                "type": "Act",
+                "target": "IPC-1860",
+                "label": "Indian Penal Code, 1860"
+            },
+            {
+                "type": "Section",
+                "target": "IPC-377",
+                "label": "Section 377"
+            },
+            {
+                "type": "Section",
+                "target": "CONST-14",
+                "label": "Article 14"
+            },
+            {
+                "type": "Section",
+                "target": "CONST-21",
+                "label": "Article 21"
+            },
+            {
+                "type": "Case",
+                "target": "CASE-2017-01",
+                "label": "K.S. Puttaswamy v. Union of India"
+            }
+        ],
+        "text": "The Court decriminalized consensual homosexual relations, striking down part of Section 377."
+    }
+]
