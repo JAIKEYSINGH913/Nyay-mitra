@@ -28,7 +28,7 @@ export default function BridgeAnimation() {
       >
         <defs>
           <linearGradient id="bridgeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#e01e22" />
+            <stop offset="0%" stopColor="#E01E22" />
             <stop offset="100%" stopColor="#0043eb" />
           </linearGradient>
           <filter id="glow-red">
@@ -50,17 +50,18 @@ export default function BridgeAnimation() {
         {/* Left Module - IPC 1860 */}
         <motion.rect
           x="60" y="60" width="100" height="180"
-          fill="#131313"
-          stroke="rgba(224, 30, 34, 0.3)"
+          fill="var(--bg-surface-low)"
+          stroke="var(--accent-red)"
+          strokeOpacity="0.3"
           strokeWidth="1"
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          className="group-hover:stroke-[#e01e22] transition-colors"
+          className="group-hover:stroke-accent-red transition-colors"
         />
-        <rect x="60" y="60" width="100" height="4" fill="#e01e22" />
+        <rect x="60" y="60" width="100" height="4" fill="var(--accent-red)" />
         
-        <text x="110" y="95" textAnchor="middle" fill="#e01e22" fontSize="12" fontWeight="900" fontFamily="Space Grotesk">IPC_SYSTEM</text>
-        <text x="110" y="115" textAnchor="middle" fill="white" fontSize="24" fontWeight="800" fontFamily="Space Grotesk">1860</text>
+        <text x="110" y="95" textAnchor="middle" fill="var(--accent-red)" fontSize="12" fontWeight="900" fontFamily="Space Grotesk">IPC_SYSTEM</text>
+        <text x="110" y="115" textAnchor="middle" fill="var(--text-primary)" fontSize="24" fontWeight="800" fontFamily="Space Grotesk">1860</text>
         
         {/* Telemetry data lines for left module */}
         {[140, 155, 170, 185, 200, 215].map((y, i) => (
@@ -77,17 +78,18 @@ export default function BridgeAnimation() {
         {/* Right Module - BNS 2023 */}
         <motion.rect
           x="540" y="60" width="100" height="180"
-          fill="#131313"
-          stroke="rgba(0, 67, 235, 0.3)"
+          fill="var(--bg-surface-low)"
+          stroke="var(--accent-blue)"
+          strokeOpacity="0.3"
           strokeWidth="1"
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
-          className="group-hover:stroke-[#0043eb] transition-colors"
+          className="group-hover:stroke-accent-blue transition-colors"
         />
-        <rect x="540" y="60" width="100" height="4" fill="#0043eb" />
+        <rect x="540" y="60" width="100" height="4" fill="var(--accent-blue)" />
         
-        <text x="590" y="95" textAnchor="middle" fill="#0043eb" fontSize="12" fontWeight="900" fontFamily="Space Grotesk">BNS_CORE</text>
-        <text x="590" y="115" textAnchor="middle" fill="white" fontSize="24" fontWeight="800" fontFamily="Space Grotesk">2023</text>
+        <text x="590" y="95" textAnchor="middle" fill="var(--accent-blue)" fontSize="12" fontWeight="900" fontFamily="Space Grotesk">BNS_CORE</text>
+        <text x="590" y="115" textAnchor="middle" fill="var(--text-primary)" fontSize="24" fontWeight="800" fontFamily="Space Grotesk">2023</text>
 
         {[140, 155, 170, 185, 200, 215].map((y, i) => (
           <motion.rect
@@ -134,7 +136,7 @@ export default function BridgeAnimation() {
           <motion.rect
             key={i}
             width="8" height="2"
-            fill={i % 2 === 0 ? "#e01e22" : "#0043eb"}
+            fill={i % 2 === 0 ? "#E01E22" : "#0043eb"}
             filter="url(#glow-red)"
             initial={{ opacity: 0 }}
             animate={{
@@ -168,7 +170,7 @@ export default function BridgeAnimation() {
       </svg>
       
       {/* Absolute floating telemetry details */}
-      <div className="absolute top-0 right-0 p-4 border border-border-color bg-[#0e0e0e] opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+      <div className="absolute top-0 right-0 p-4 border border-border-color bg-bg-surface-low opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-lg shadow-xl glass-panel">
          <div className="telemetry-label !text-[8px] mb-2">BRIDGE_HEALTH</div>
          <div className="flex gap-1 h-4">
             {[1,1,1,1,1,0,0,1].map((v, i) => (

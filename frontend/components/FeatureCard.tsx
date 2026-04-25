@@ -31,7 +31,7 @@ export default function FeatureCard({
       whileInView={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay, ease: [0.16, 1, 0.3, 1] }}
       viewport={{ once: true }}
-      className="bg-[#1c1b1b] p-8 border-l border-border-color hover:border-primary-container transition-all duration-500 group flex flex-col justify-between h-full relative overflow-hidden"
+      className="bg-bg-surface-low p-8 border-l border-border-color hover:border-primary-container transition-all duration-500 group flex flex-col justify-between h-full relative overflow-hidden"
     >
       {/* Background sweep animation on hover */}
       <motion.div 
@@ -45,7 +45,7 @@ export default function FeatureCard({
         {/* Service Header */}
         <div className="flex justify-between items-start mb-10">
           <div className="flex items-center gap-4">
-             <div className="p-3 bg-[#0e0e0e] border border-border-color group-hover:border-primary-container group-hover:bg-[#131313] transition-all">
+             <div className="p-3 bg-bg-secondary border border-border-color group-hover:border-primary-container group-hover:bg-bg-surface-low transition-all">
                {icon}
              </div>
              <span className="telemetry-label text-primary-container font-black tracking-[.3em]">{service}</span>
@@ -60,7 +60,7 @@ export default function FeatureCard({
           {title}
         </h3>
         
-        <p className="text-[#e7bdb8] opacity-60 text-base leading-relaxed mb-10 font-body group-hover:opacity-80 transition-opacity">
+        <p className="text-text-secondary opacity-60 text-base leading-relaxed mb-10 font-body group-hover:opacity-80 transition-opacity">
           {description}
         </p>
 
@@ -69,7 +69,7 @@ export default function FeatureCard({
           {tags.map((tag) => (
             <span
               key={tag}
-              className="telemetry-label bg-[#0e0e0e] px-3 py-1.5 border border-border-color group-hover:border-white/10 !text-[9px] transition-colors"
+              className="telemetry-label bg-bg-secondary px-3 py-1.5 border border-border-color group-hover:border-white/10 !text-[9px] transition-colors"
             >
               {tag}
             </span>
@@ -78,14 +78,11 @@ export default function FeatureCard({
       </div>
 
       {/* CTA - Industrial Button */}
-      <Link href={href} className="mt-auto relative z-10">
-        <motion.button 
-          whileHover={{ x: 5 }}
-          whileTap={{ scale: 0.98 }}
-          className="w-full py-5 border border-border-color font-space text-[12px] font-bold uppercase tracking-[0.3em] hover:bg-primary-container hover:text-white group-hover:border-primary-container transition-all flex items-center justify-center gap-3"
-        >
-          INITIALIZE_MODULE <ArrowUpRight className="w-4 h-4" />
-        </motion.button>
+      <Link 
+        href={href} 
+        className="mt-auto relative z-10 w-full py-5 border border-border-color font-space text-[12px] font-bold uppercase tracking-[0.3em] hover:bg-primary-container hover:text-white group-hover:border-primary-container transition-all flex items-center justify-center gap-3"
+      >
+        INITIALIZE_MODULE <ArrowUpRight className="w-4 h-4" />
       </Link>
     </motion.div>
   );

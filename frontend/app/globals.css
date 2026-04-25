@@ -4,31 +4,59 @@
    THE SOVEREIGN COCKPIT (Obsidian Protocol) DESIGN TOKENS
 ───────────────────────────────────────────────────── */
 :root {
-  /* THE VOID & THE PULSE */
-  --bg-primary: #131313;
-  --bg-secondary: #0e0e0e; /* surface_container_lowest */
-  --bg-surface-low: #1c1b1b;
-  --bg-surface-high: #2a2a2a;
-  --bg-surface-highest: #353534;
+  /* LIGHT MODE (Google Antigravity Style) */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8f9fa;
+  --bg-surface-low: #f1f3f4;
+  --bg-surface-high: #e8eaed;
+  --bg-surface-highest: #dadce0;
   
-  --primary-container: #e01e22; /* Industrial Red */
-  --on-primary-container: #fff7f6;
-  --secondary-container: #0043eb; /* Electric Blue */
-  --on-secondary-container: #c6ceff;
+  --primary-container: #1a73e8; /* Google Blue */
+  --on-primary-container: #ffffff;
+  --secondary-container: #ea4335; /* Google Red */
+  --on-secondary-container: #ffffff;
   
-  --text-primary: #e5e2e1;
-  --text-secondary: #e7bdb8; /* on-surface-variant */
-  --text-muted: rgba(229, 226, 225, 0.4);
+  --text-primary: #202124;
+  --text-secondary: #5f6368;
+  --text-muted: rgba(60, 64, 67, 0.4);
   
-  --accent-red: #e01e22;
-  --accent-blue: #0043eb;
+  --accent-red: #ea4335;
+  --accent-blue: #4285f4;
+  --accent-yellow: #fbbc04;
+  --accent-green: #34a853;
   
-  --border-color: rgba(93, 63, 60, 0.15); /* outline_variant at 15% */
-  --glass-bg: rgba(53, 53, 52, 0.4);
+  --border-color: rgba(60, 64, 67, 0.25); /* Increased contrast for light mode */
+  --glass-bg: rgba(255, 255, 255, 0.7);
   
-  --font-display: 'Space Grotesk', sans-serif;
+  --font-display: 'Google Sans Flex', 'Inter', sans-serif;
   --font-body: 'Inter', sans-serif;
   --font-label: 'Space Grotesk', sans-serif;
+}
+
+.dark {
+  /* DARK MODE (Industrial Sovereign Style) */
+  --bg-primary: #050505; /* True Charcoal Black */
+  --bg-secondary: #0a0a0a;
+  --bg-surface-low: #121212;
+  --bg-surface-high: #1a1a1a;
+  --bg-surface-highest: #222222;
+  
+  --primary-container: #E01E22; /* Industrial Red */
+  --on-primary-container: #ffffff;
+  --secondary-container: #0043eb; /* Electric Blue */
+  --on-secondary-container: #ffffff;
+  
+  --text-primary: #ffffff !important; /* Force Pure White */
+  --text-secondary: rgba(255, 255, 255, 0.85);
+  --text-muted: rgba(255, 255, 255, 0.5);
+  
+  --accent-red: #E01E22;
+  --accent-blue: #0043eb;
+  --accent-cyan: #06b6d4;
+  
+  --border-color: rgba(255, 255, 255, 0.2); /* High contrast for dark mode */
+  --accent-border: 2px solid var(--primary-container);
+  --glass-bg: rgba(10, 10, 10, 0.7);
 }
 
 /* ─────────────────────────────────────────────────────
@@ -36,7 +64,6 @@
 ───────────────────────────────────────────────────── */
 *, *::before, *::after {
   box-sizing: border-box;
-  border-radius: 0 !important; /* HARD EDGES: 0px border radius as per THE SOVEREIGN COCKPIT */
 }
 
 html {
@@ -62,10 +89,15 @@ body {
   opacity: 0.1;
 }
 
+.dark .node-network {
+  opacity: 0.1; /* Red dots at 10% opacity as per Signature Textures */
+}
+
 .glass-panel {
   background: var(--glass-bg);
-  backdrop-filter: blur(12px);
-  border: 1px solid var(--border-color);
+  backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
 }
 
 .monolithic-border-l {
@@ -132,14 +164,14 @@ h1, h2, h3, h4, .font-space {
   text-transform: uppercase;
   letter-spacing: 0.2em;
   padding: 1rem 2.5rem;
-  border: 1px solid var(--border-color);
+  border: 2px solid var(--primary-container); /* Red border for industrial feel */
   transition: all 0.2s ease;
   cursor: pointer;
 }
 
 .btn-industrial-outline:hover {
-  background: var(--bg-surface-high);
-  border-color: var(--text-primary);
+  background: var(--primary-container);
+  color: white;
 }
 
 /* ─────────────────────────────────────────────────────

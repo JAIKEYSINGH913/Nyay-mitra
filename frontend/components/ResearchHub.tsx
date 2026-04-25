@@ -10,7 +10,7 @@ export default function ResearchHub() {
   const [abstractOpen, setAbstractOpen] = useState(false);
 
   return (
-    <section className="py-32 px-6 bg-[#0e0e0e] border-y border-border-color relative overflow-hidden">
+    <section className="py-32 px-6 bg-bg-secondary border-y border-border-color relative overflow-hidden">
       {/* Background decoration */}
       <div className="absolute inset-0 node-network opacity-5" />
 
@@ -22,7 +22,7 @@ export default function ResearchHub() {
            viewport={{ once: true }}
            className="mb-16"
         >
-          <div className="inline-block px-4 py-1.5 bg-[#1c1b1b] border border-border-color mb-8">
+          <div className="inline-block px-4 py-1.5 bg-bg-surface-low border border-border-color mb-8">
             <span className="telemetry-label !text-muted">Research_Publication // RH-402</span>
           </div>
           <h2 className="text-4xl md:text-5xl font-bold mb-6">Research Paper Hub</h2>
@@ -37,16 +37,16 @@ export default function ResearchHub() {
           viewport={{ once: true }}
           className="bg-bg-primary p-1 border border-border-color shadow-2xl"
         >
-          <div className="bg-[#1c1b1b] p-10">
+          <div className="bg-bg-surface-low p-10">
             <div className="flex flex-col md:flex-row justify-between items-start gap-8 mb-10">
                <div className="flex-1">
                   <h3 className="text-2xl font-bold uppercase mb-4 leading-tight">
                     NyayMitra: A Proposed GraphRAG Architecture for Deterministic Legal AI
                   </h3>
                   <div className="flex flex-wrap gap-4">
-                     <span className="telemetry-label !text-[9px] px-2 py-1 bg-[#0e0e0e] border border-border-color">2026 // STABLE</span>
-                     <span className="telemetry-label !text-[9px] px-2 py-1 bg-[#0e0e0e] border border-border-color text-secondary-container">KNOWLEDGE_GRAPH</span>
-                     <span className="telemetry-label !text-[9px] px-2 py-1 bg-[#0e0e0e] border border-border-color text-primary-container">DETERMINISTIC</span>
+                     <span className="telemetry-label !text-[9px] px-2 py-1 bg-bg-secondary border border-border-color">2026 // STABLE</span>
+                     <span className="telemetry-label !text-[9px] px-2 py-1 bg-bg-secondary border border-border-color text-secondary-container">KNOWLEDGE_GRAPH</span>
+                     <span className="telemetry-label !text-[9px] px-2 py-1 bg-bg-secondary border border-border-color text-primary-container">DETERMINISTIC</span>
                   </div>
                </div>
                
@@ -81,7 +81,7 @@ export default function ResearchHub() {
                     transition={{ duration: 0.4, ease: "easeInOut" }}
                     className="overflow-hidden"
                   >
-                    <div className="mt-8 p-8 bg-[#0e0e0e] border-l-2 border-primary-container font-body text-sm leading-relaxed text-[#e7bdb8] opacity-80 whitespace-pre-line">
+                    <div className="mt-8 p-8 bg-bg-secondary border-l-2 border-primary-container font-body text-sm leading-relaxed text-text-secondary opacity-80 whitespace-pre-line">
                       {abstract}
                     </div>
                   </motion.div>

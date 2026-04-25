@@ -3,14 +3,15 @@ from pydantic import BaseModel
 import time
 import os
 from typing import List, Dict, Any, Optional
-from app.services.bhashini_service import BhashiniService
+from app.services.sarvam_service import SarvamService
 from dotenv import load_dotenv
 
 load_dotenv()
 
 app = FastAPI(title="Nyay-Vani Multilingual Voice Engine", version="1.0.0")
 
-bhashini_service = BhashiniService()
+sarvam_service = SarvamService()
+
 
 class STTRequest(BaseModel):
     audio_content: str  # Base64 encoded audio
@@ -29,7 +30,12 @@ class VaniResponse(BaseModel):
 @app.post("/api/vani/stt", response_model=VaniResponse)
 async def speech_to_text(request: STTRequest):
     start_time = time.time()
-    result = await bhashini_service.transcribe(request.audio_content, request.language_code)
+    # Sarvam expects BCP-47 codes. Mapping standard codes if needed:
+    lang = request.language_code
+    if lang == "hi": lang = "hi-IN"
+    if lang == "en": lang = "en-IN"
+    
+    result = await sarvam_service.transcribe(request.audio_content, lang)
     processing_time = (time.time() - start_time) * 1000
     
     return VaniResponse(
@@ -44,7 +50,11 @@ async def speech_to_text(request: STTRequest):
 @app.post("/api/vani/translate", response_model=VaniResponse)
 async def translate(request: TranslationRequest):
     start_time = time.time()
-    result = await bhashini_service.translate(request.text, request.source_lang, request.target_lang)
+    # Mapping lang codes for Sarvam
+    sl = request.source_lang if "-" in request.source_lang else f"{request.source_lang}-IN"
+    tl = request.target_lang if "-" in request.target_lang else f"{request.target_lang}-IN"
+
+    result = await sarvam_service.translate(request.text, sl, tl)
     processing_time = (time.time() - start_time) * 1000
     
     return VaniResponse(

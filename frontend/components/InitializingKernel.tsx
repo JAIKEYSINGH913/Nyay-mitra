@@ -27,7 +27,7 @@ export default function InitializingKernel() {
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.8 }}
-          className="fixed inset-0 z-[200] bg-[#0a0a0a] flex flex-col items-center justify-center"
+          className="fixed inset-0 z-[200] bg-bg-primary flex flex-col items-center justify-center transition-colors"
         >
           <div className="relative mb-12">
             {/* Deterministic Pulse Logo */}
@@ -40,7 +40,7 @@ export default function InitializingKernel() {
                 initial={{ pathLength: 0 }}
                 animate={{ pathLength: 1 }}
                 transition={{ duration: 2, ease: "easeInOut" }}
-                d="M20 5V35M20 5L10 15M20 5L30 15" stroke="#00E0FF" strokeWidth="2" strokeLinecap="round"
+                d="M20 5V35M20 5L10 15M20 5L30 15" stroke="var(--primary-container)" strokeWidth="2" strokeLinecap="round"
               />
               <motion.circle 
                 animate={{ opacity: [0.3, 1, 0.3], scale: [1, 1.1, 1] }}
@@ -56,7 +56,7 @@ export default function InitializingKernel() {
             </motion.svg>
             
             {/* Ambient Pulse Glow */}
-            <div className="absolute inset-0 bg-[#00E0FF]/10 blur-[60px] animate-pulse -z-10" />
+            <div className="absolute inset-0 bg-primary-container/10 blur-[60px] animate-pulse -z-10" />
           </div>
 
           <div className="space-y-6 text-center">

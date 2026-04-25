@@ -19,32 +19,24 @@ import {
 } from "lucide-react";
 
 // Dynamic imports for heavy animations
-const ParticleNetwork = dynamic(() => import("@/components/ParticleNetwork"), { ssr: false });
-const ParticleSwarm = dynamic(() => import("@/components/ParticleSwarm"), { ssr: false });
+const DynamicBackground = dynamic(() => import("@/components/DynamicBackground"), { ssr: false });
 const BridgeAnimation = dynamic(() => import("@/components/BridgeAnimation"), { ssr: false });
+const LegalGraph3D = dynamic(() => import("@/components/LegalGraph3D"), { ssr: false });
 
 export default function HomePage() {
   return (
-    <div className="relative pt-16 bg-bg-surface">
+    <div className="relative pt-20">
       {/* ─── SYSTEM OVERLAY ───────────────────────────── */}
       <div className="scan-line" />
+      <DynamicBackground />
       
-      {/* ─── HERO SECTION WITH INTEGRATED SWARM ─────────────────────────────── */}
+      {/* ─── HERO SECTION ─────────────────────────────── */}
       <section className="relative min-h-[100vh] flex flex-col items-center justify-center overflow-hidden px-6 pt-24 pb-20">
+        <div className="absolute inset-0 node-network pointer-events-none z-0" />
         
-        {/* INTERACTIVE BACKGROUND LAYER (Swarm + Network) */}
-        <div className="absolute inset-0 z-0 overflow-hidden cursor-crosshair">
-           <div className="absolute inset-0 node-network opacity-10"></div>
-           <div className="absolute inset-0 opacity-20">
-              <ParticleNetwork />
-           </div>
-           
-           {/* THE SOVEREIGN SWARM - Integrated Hero Background */}
-           <div className="absolute inset-0 z-10 pointer-events-auto">
-              <ParticleSwarm />
-           </div>
-           
-           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-bg-surface/40 to-bg-surface"></div>
+        {/* INTERACTIVE BACKGROUND LAYER (Handled by DynamicBackground) */}
+        <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+           <div className="absolute inset-0 bg-gradient-to-b from-transparent to-bg-primary"></div>
         </div>
 
         <div className="relative z-20 text-center max-w-5xl mb-12">
@@ -52,7 +44,7 @@ export default function HomePage() {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5 }}
-            className="inline-block px-4 py-1.5 bg-bg-surface-lowest border border-border-color mb-8 group"
+            className="inline-block px-4 py-1.5 bg-bg-secondary border-b-2 border-primary-container mb-8 group"
           >
             <span className="font-space text-[0.6875rem] tracking-[0.3em] text-secondary-container uppercase font-bold">
               Protocol Alpha-7 // Sovereign_Cockpit_v.4.02
@@ -63,13 +55,12 @@ export default function HomePage() {
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-            className="font-space text-5xl md:text-8xl lg:text-9xl font-bold tracking-tighter leading-[0.9] uppercase mb-10"
+            className="font-space text-5xl md:text-8xl lg:text-9xl font-bold tracking-tighter leading-[0.9] uppercase mb-10 text-text-primary"
           >
             The Sovereign <br />
             <span className="text-primary-container relative">
                Cockpit
-               {/* Background highlight that follows the cockit feel */}
-               <div className="absolute inset-0 bg-primary-container/5 -z-10 blur-xl scale-110 opacity-30 group-hover:opacity-100 transition-opacity" />
+               <div className="absolute inset-0 bg-white/5 -z-10 blur-3xl scale-110 opacity-10 group-hover:opacity-20 transition-opacity" />
             </span> for <br />
             Indian Law
           </motion.h1>
@@ -78,7 +69,7 @@ export default function HomePage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, delay: 0.4 }}
-            className="font-body text-[#e7bdb8] text-lg md:text-xl max-w-2xl mx-auto mb-12 leading-relaxed opacity-80"
+            className="font-body text-text-secondary text-lg md:text-xl max-w-2xl mx-auto mb-12 leading-relaxed opacity-80"
           >
             High-velocity legal intelligence engineered for the IPC-BNS transition. 
             A monolithic interface for the modern jurist.
@@ -111,19 +102,29 @@ export default function HomePage() {
         <motion.div 
            initial={{ opacity: 0, y: 100 }}
            animate={{ opacity: 1, y: 0 }}
-           transition={{ delay: 0.8, duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-           className="relative z-20 w-full max-w-6xl aspect-video bg-bg-surface-lowest border border-border-color p-2 shadow-2xl overflow-hidden group"
+           whileHover={{ scale: 1.02, rotateX: 2, rotateY: -2 }}
+           transition={{ 
+             layout: { duration: 0.3 },
+             opacity: { delay: 0.8, duration: 1.2 },
+             y: { delay: 0.8, duration: 1.2, ease: [0.16, 1, 0.3, 1] }
+           }}
+           className="relative z-20 w-full max-w-6xl aspect-video bg-bg-surface-lowest border border-border-color p-2 shadow-2xl overflow-hidden group cursor-pointer"
+           style={{ transformStyle: "preserve-3d", perspective: "1000px" }}
         >
-          <div className="w-full h-full bg-bg-surface-high relative overflow-hidden bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]">
-             <div className="absolute inset-0 bg-gradient-to-t from-bg-surface-lowest via-transparent to-transparent"></div>
+          <div className="w-full h-full bg-bg-surface-high relative overflow-hidden">
+             <LegalGraph3D />
+             <div className="absolute inset-0 bg-gradient-to-t from-bg-surface-lowest via-transparent to-transparent opacity-80 pointer-events-none"></div>
              
+             {/* Scanline Effect Overlay */}
+             <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-30 pointer-events-none"></div>
+
              {/* Integrated Telemetry Details */}
              <div className="absolute bottom-10 left-10 flex gap-6 z-20">
-                <div className="h-16 w-40 bg-bg-surface-lowest border-l-4 border-primary-container flex flex-col justify-center px-4 backdrop-blur-md">
+                <div className="h-16 w-40 bg-bg-surface-lowest/80 border-l-4 border-primary-container flex flex-col justify-center px-4 backdrop-blur-md border border-white/5">
                    <span className="telemetry-label !text-primary-container uppercase !text-[9px]">SYSTEM_LATENCY</span>
                    <span className="system-value text-xl font-bold">14.002 MS</span>
                 </div>
-                <div className="h-16 w-40 bg-bg-surface-lowest border-l-4 border-secondary-container flex flex-col justify-center px-4 backdrop-blur-md">
+                <div className="h-16 w-40 bg-bg-surface-lowest/80 border-l-4 border-secondary-container flex flex-col justify-center px-4 backdrop-blur-md border border-white/5">
                    <span className="telemetry-label !text-secondary-container uppercase !text-[9px]">NEURAL_NODES</span>
                    <span className="system-value text-xl font-bold">4.2M_INDEXED</span>
                 </div>
@@ -132,14 +133,14 @@ export default function HomePage() {
              <motion.div 
                 animate={{ y: ["0%", "100%", "0%"] }}
                 transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-                className="absolute top-0 left-0 w-full h-[1px] bg-white opacity-10 pointer-events-none" 
+                className="absolute top-0 left-0 w-full h-[1px] bg-white opacity-20 pointer-events-none z-30" 
              />
           </div>
         </motion.div>
       </section>
 
       {/* ─── RESEARCH HUB BENTO GRID ───────────────────────────────────── */}
-      <section className="py-32 px-6 bg-bg-surface-lowest border-t border-border-color">
+      <section className="py-32 px-6 bg-bg-primary border-t border-border-color transition-colors">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-end mb-20 gap-8">
             <motion.div 
@@ -148,67 +149,70 @@ export default function HomePage() {
                viewport={{ once: true }}
                className="max-w-xl"
             >
-              <h2 className="font-space text-4xl md:text-5xl font-bold uppercase tracking-tighter mb-6">Research Hub</h2>
+              <h2 className="font-space text-4xl md:text-5xl font-bold uppercase tracking-tighter mb-6 text-text-primary">Research Hub</h2>
               <div className="h-1 w-24 bg-primary-container mb-8"></div>
-              <p className="text-[#e7bdb8] opacity-70 text-lg leading-relaxed font-body font-normal">
+              <p className="text-text-secondary opacity-70 text-lg leading-relaxed font-body font-normal">
                 Navigating the tectonic shift from the Indian Penal Code (IPC) to the Bharatiya Nyaya Sanhita (BNS). Access real-time transition protocols and authority mapping.
               </p>
             </motion.div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-1 bg-border-color/10">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <motion.div 
                whileHover={{ translateY: -5 }}
-               className="md:col-span-2 bg-bg-surface-high p-10 flex flex-col justify-between group hover:bg-[#201f1f] transition-all relative overflow-hidden"
+               className="md:col-span-2 bg-bg-surface-low p-10 flex flex-col justify-between group hover:bg-bg-surface-high transition-all relative overflow-hidden rounded-2xl glass-panel border-l-2 border-primary-container"
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-primary-container/2 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="absolute inset-0 bg-gradient-to-br from-primary-container/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+              {/* Glowing Border Effect */}
+              <div className="absolute inset-0 border border-primary-container/0 group-hover:border-primary-container/30 transition-all rounded-2xl pointer-events-none" />
+              
               <div className="relative z-10">
                 <div className="flex items-center gap-3 mb-10">
                    <FileText className="w-5 h-5 text-primary-container" />
-                   <span className="telemetry-label !text-white !font-bold uppercase">Transition Protocol</span>
+                   <span className="telemetry-label !text-text-primary !font-bold uppercase">Transition Protocol</span>
                 </div>
-                <h3 className="font-space text-4xl md:text-5xl font-bold uppercase mb-6 leading-tight group-hover:text-white">
-                  IPC-BNS Transition: <br />Architectural Delta Analysis
+                <h3 className="font-space text-4xl md:text-5xl font-bold uppercase mb-6 leading-tight text-text-primary">
+                   IPC-BNS Transition: <br />Architectural Delta Analysis
                 </h3>
-                <p className="text-[#e7bdb8] opacity-60 mb-16 max-w-lg text-lg leading-relaxed font-body">
-                  Detailed mapping of section migration, clause evolution, and semantic shifts in criminal jurisprudence.
+                <p className="text-text-secondary opacity-60 mb-16 max-w-lg text-lg leading-relaxed font-body">
+                   Detailed mapping of section migration, clause evolution, and semantic shifts in criminal jurisprudence.
                 </p>
               </div>
               
-              <div className="flex flex-wrap gap-12 items-center border-t border-border-color pt-10 mt-auto relative z-10">
+              <div className="flex flex-wrap gap-12 items-center border-t border-border-color pt-10 mt-auto relative z-10 dark:border-white/5">
                 <div>
                    <div className="telemetry-label !text-[10px] opacity-40 uppercase mb-2">Node_Stability</div>
                    <div className="font-space text-3xl font-bold text-secondary-container">99.98%</div>
                 </div>
                 <div className="ml-auto">
-                   <button className="flex items-center gap-3 bg-bg-surface-lowest border border-border-color py-4 px-8 font-space text-[11px] font-bold uppercase hover:bg-primary-container hover:text-white transition-all shadow-xl">
-                     OPEN_RESEARCH_MODULE <ArrowUpRight className="w-4 h-4" />
+                   <button className="flex items-center gap-3 bg-bg-surface-low border-b-2 border-primary-container py-4 px-8 font-space text-[11px] font-bold uppercase hover:bg-primary-container hover:text-white transition-all shadow-xl">
+                      OPEN_RESEARCH_MODULE <ArrowUpRight className="w-4 h-4" />
                    </button>
                 </div>
               </div>
             </motion.div>
 
-            <div className="flex flex-col gap-1">
-              <div className="bg-bg-surface-high p-8 flex flex-col justify-between h-[300px] border-l-4 border-primary-container group hover:bg-[#201f1f] transition-all cursor-pointer">
+            <div className="flex flex-col gap-6">
+              <div className="bg-bg-surface-low p-8 flex flex-col justify-between h-[300px] border-l-2 border-primary-container group hover:bg-bg-surface-high transition-all cursor-pointer rounded-2xl glass-panel">
                 <div>
                   <div className="telemetry-label !text-primary-container uppercase !font-bold mb-6 flex items-center gap-2">
                     <div className="w-1.5 h-1.5 bg-primary-container animate-pulse" />
                     Active Data Stream
                   </div>
-                  <h4 className="font-space text-2xl font-bold uppercase mb-4">Authority Engines</h4>
-                  <p className="text-sm text-[#e7bdb8] opacity-70 font-body">Synthesized cross-referencing across 75+ years of Supreme Court precedent.</p>
+                  <h4 className="font-space text-2xl font-bold uppercase mb-4 text-text-primary">Authority Engines</h4>
+                  <p className="text-sm text-text-secondary opacity-70 font-body">Synthesized cross-referencing across 75+ years of Supreme Court precedent.</p>
                 </div>
                 <Bolt className="w-5 h-5 text-primary-container self-end" />
               </div>
 
-              <div className="bg-bg-surface-high p-8 flex flex-col justify-between h-[300px] border-l-4 border-secondary-container group hover:bg-[#201f1f] transition-all cursor-pointer">
+              <div className="bg-bg-surface-low p-8 flex flex-col justify-between h-[300px] border-l-2 border-secondary-container group hover:bg-bg-surface-high transition-all cursor-pointer rounded-2xl glass-panel">
                 <div>
                   <div className="telemetry-label !text-secondary-container uppercase !font-bold mb-6 flex items-center gap-2">
                     <div className="w-1.5 h-1.5 bg-secondary-container" />
                     UX Environment
                   </div>
-                  <h4 className="font-space text-2xl font-bold uppercase mb-4">Trauma-Sensitive</h4>
-                  <p className="text-sm text-[#e7bdb8] opacity-70 font-body">Interface calibrated for low cognitive load during high-stakes litigation.</p>
+                  <h4 className="font-space text-2xl font-bold uppercase mb-4 text-text-primary">Trauma-Sensitive</h4>
+                  <p className="text-sm text-text-secondary opacity-70 font-body">Interface calibrated for low cognitive load during high-stakes litigation.</p>
                 </div>
                 <HeartPulse className="w-5 h-5 text-secondary-container self-end" />
               </div>
@@ -218,17 +222,17 @@ export default function HomePage() {
       </section>
 
       {/* ─── TECHNICAL METADATA GRID ───────────────────────────────────── */}
-      <section className="py-24 px-6 bg-bg-surface border-y border-border-color">
+      <section className="py-24 px-6 bg-bg-secondary transition-colors">
         <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-12 lg:gap-20 text-center md:text-left">
           {[
             { label: "System Latency", value: "14.002 MS", color: "bg-primary-container", width: "15%" },
             { label: "Neural Synapse", value: "8.42 T/FLOPS", color: "bg-secondary-container", width: "82%" },
-            { label: "Legal Coverage", value: "PAN-INDIA", color: "bg-white", width: "100%" },
-            { label: "Auth Level", value: "SOVEREIGN", color: "bg-primary-container", width: "100%" }
+            { label: "Legal Coverage", value: "PAN-INDIA", color: "bg-primary-container", width: "100%" },
+            { label: "Auth Level", value: "SOVEREIGN", color: "bg-secondary-container", width: "100%" }
           ].map((stat) => (
             <div key={stat.label} className="flex flex-col gap-4 group">
               <span className="telemetry-label !text-[10px] opacity-40 uppercase tracking-[.3em] font-bold">{stat.label}</span>
-              <div className="h-[2px] w-full bg-bg-surface-highest overflow-hidden">
+              <div className="h-[2px] w-full bg-bg-surface-low overflow-hidden">
                 <motion.div 
                    initial={{ width: 0 }}
                    whileInView={{ width: stat.width }}
@@ -237,14 +241,14 @@ export default function HomePage() {
                    className={`h-full ${stat.color}`} 
                 />
               </div>
-              <span className="font-space text-2xl lg:text-3xl font-bold tracking-tight uppercase group-hover:text-white transition-colors">{stat.value}</span>
+              <span className="font-space text-2xl lg:text-3xl font-bold tracking-tight uppercase group-hover:text-primary-container transition-colors text-text-primary">{stat.value}</span>
             </div>
           ))}
         </div>
       </section>
 
       {/* ─── PROTOCOL DEPLOYMENT (Bridge Animation) ────────────────────── */}
-      <section className="py-32 px-6 bg-bg-surface-lowest">
+      <section className="py-32 px-6 bg-bg-secondary">
          <div className="max-w-5xl mx-auto text-center mb-20 font-space">
             <h2 className="text-4xl md:text-6xl font-bold uppercase tracking-tighter mb-6">Protocol Deployment</h2>
             <p className="text-on-surface-variant opacity-60 text-lg font-body">Real-time visualization of the statutory delta transfer.</p>
@@ -257,22 +261,22 @@ export default function HomePage() {
       </section>
 
       {/* ─── DESIGN DNA SECTION ────────────────────────────────────────── */}
-      <section className="py-40 px-6 overflow-hidden bg-bg-surface border-t border-border-color">
+      <section className="py-40 px-6 overflow-hidden bg-bg-primary border-t border-border-color transition-colors">
         <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-24 items-center">
           <div className="w-full lg:w-1/2 relative">
             <div className="absolute -top-6 -left-6 w-32 h-32 border-t-2 border-l-2 border-primary-container z-20" />
             <div className="absolute -bottom-6 -right-6 w-32 h-32 border-b-2 border-r-2 border-secondary-container z-20" />
-            <div className="relative group overflow-hidden border border-border-color bg-bg-surface-lowest">
+            <div className="relative group overflow-hidden border border-border-color bg-bg-surface-low rounded-2xl glass-panel">
               <img 
-                 className="w-full grayscale hover:grayscale-0 transition-all duration-1000 scale-100 hover:scale-105" 
-                 src="https://lh3.googleusercontent.com/aida-public/AB6AXuCDIcYLok4Xz6m05F4c4xzR3SRH60t-oLtC8DQX20wk_Xgaq4GDBI450TVTBenGU8ZD0O8ZjDpz84YyWB-HS-85h7E1ueQiNoA7H-tN0jWY7z83z_3-V0zy6PSG-Ne-gAFzSSco5-fTRDmenMLyk-Xu_Vg4736qj3VNFaGpQhBAxnf3XNmoKddLww1-4cQ3Za5R0MORx2gCAoDeDk0vJKufp2Ht1BRbYLMT3of41k-7ylYh_wlAylClajyvwxqFpHHJTgNBZcYLqA" 
+                 className="w-full transition-all duration-1000 scale-100 hover:scale-105" 
+                 src="https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&q=80&w=1000" 
                  alt="Legal Integrity"
               />
             </div>
           </div>
 
           <div className="w-full lg:w-1/2">
-            <h2 className="font-space text-5xl md:text-7xl font-bold uppercase tracking-tighter mb-12 leading-[0.85]">Legal <br/><span className="text-primary-container">Engineering</span> DNA</h2>
+            <h2 className="font-space text-5xl md:text-7xl font-bold uppercase tracking-tighter mb-12 leading-[0.85] text-text-primary">Legal <br/><span className="text-primary-container">Engineering</span> DNA</h2>
             <div className="space-y-12">
               {[
                 { id: "01", title: "Authority Engines", icon: <Shield className="w-5 h-5 text-primary-container" />, desc: "Proprietary LLM layers trained on Supreme Court datasets ensure zero hallucination." },
@@ -280,21 +284,21 @@ export default function HomePage() {
                 { id: "03", title: "Cryptographic Integrity", icon: <Database className="w-5 h-5 text-primary-container" />, desc: "End-to-end encrypted research vaults protected by military-grade protocols." }
               ].map((item) => (
                 <div key={item.id} className="flex gap-8 group">
-                  <span className="font-space text-3xl font-black text-[#353534] group-hover:text-primary-container transition-all">{item.id}</span>
+                  <span className="font-space text-3xl font-black text-text-muted group-hover:text-primary-container transition-all">{item.id}</span>
                   <div>
                     <div className="flex items-center gap-3 mb-3">
                        {item.icon}
-                       <h4 className="font-space text-2xl font-bold uppercase tracking-tight group-hover:text-white transition-all">{item.title}</h4>
+                       <h4 className="font-space text-2xl font-bold uppercase tracking-tight group-hover:text-primary-container transition-all text-text-primary">{item.title}</h4>
                     </div>
-                    <p className="text-[#e7bdb8] opacity-70 text-base leading-relaxed pl-6 border-l border-white/5 group-hover:border-primary-container transition-all">
-                      {item.desc}
+                    <p className="text-text-secondary opacity-70 text-base leading-relaxed pl-6 border-l border-border-color group-hover:border-primary-container transition-all">
+                       {item.desc}
                     </p>
                   </div>
                 </div>
               ))}
             </div>
             <div className="mt-16">
-              <button className="btn-industrial-outline px-12 py-5 text-sm font-bold uppercase tracking-widest flex items-center gap-3 group">
+              <button className="btn-industrial-outline px-12 py-5 text-sm font-bold uppercase tracking-widest flex items-center gap-3 group border-border-color hover:border-primary-container text-text-primary">
                 EXPLORE_PROTOCOLS <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </button>
             </div>

@@ -183,24 +183,19 @@ export default function ServicePending({
           transition={{ delay: 0.6 }}
           style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}
         >
-          <Link href="/dashboard" style={{ textDecoration: "none" }}>
-            <motion.button
-              className="btn-primary"
-              style={{ display: "flex", alignItems: "center", gap: 8 }}
-              whileHover={{ scale: 1.04 }}
-              whileTap={{ scale: 0.97 }}
-            >
-              <span className="material-symbols-outlined" style={{ fontSize: 18 }}>arrow_back</span> Return Home Dashboard
-            </motion.button>
+          <Link 
+            href="/dashboard" 
+            className="btn-primary"
+            style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 8 }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: 18 }}>arrow_back</span> Return Home Dashboard
           </Link>
-          <Link href="/research" style={{ textDecoration: "none" }}>
-            <motion.button
-              className="btn-ghost"
-              whileHover={{ scale: 1.04 }}
-              whileTap={{ scale: 0.97 }}
-            >
-              Read Architecture Paper
-            </motion.button>
+          <Link 
+            href="/research" 
+            className="btn-ghost"
+            style={{ textDecoration: "none" }}
+          >
+            Read Architecture Paper
           </Link>
         </motion.div>
       </div>

@@ -7,11 +7,11 @@ import InitializingKernel from "@/components/InitializingKernel";
 import { TelemetryProvider } from "@/components/TelemetryProvider";
 
 export const metadata: Metadata = {
-  title: "NyayMitra – Legal AI Ecosystem",
+  title: "Nyay-Mitra – Legal AI Ecosystem",
   description: "A glass-box deterministic Legal AI platform bridging IPC to BNS with Knowledge Graph-powered intelligence.",
-  keywords: ["Legal AI", "NyayMitra", "BNS", "IPC", "GraphRAG", "Neo4j", "Indian Law"],
+  keywords: ["Legal AI", "Nyay-Mitra", "BNS", "IPC", "GraphRAG", "Neo4j", "Indian Law"],
   openGraph: {
-    title: "NyayMitra – Legal AI Ecosystem",
+    title: "Nyay-Mitra – Legal AI Ecosystem",
     description: "Knowledge Graph-powered legal intelligence for modern India.",
     type: "website",
   },
@@ -31,7 +31,7 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@8..144,100..1000&display=swap" rel="stylesheet" />
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
       </head>
-      <body style={{ fontFamily: "'Google Sans Flex', 'Roboto', sans-serif" }}>
+      <body style={{ fontFamily: "'Google Sans Flex', 'Roboto', sans-serif" }} suppressHydrationWarning>
         <ThemeProvider>
           <TelemetryProvider>
             <InitializingKernel />
