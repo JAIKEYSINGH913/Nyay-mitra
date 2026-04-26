@@ -92,15 +92,9 @@ body {
 /* ─────────────────────────────────────────────────────
    SIGNATURE TEXTURES & UTILITIES
 ───────────────────────────────────────────────────── */
+/* Grid textures removed for cleaner aesthetic */
 .node-network {
-  background-image: radial-gradient(var(--accent-red) 0.5px, transparent 0.5px);
-  background-size: 24px 24px;
-  opacity: 0.1;
-}
-
-.dark .node-network {
-  opacity: 0.1;
-  /* Red dots at 10% opacity as per Signature Textures */
+  display: none;
 }
 
 .glass-panel {
