@@ -10,51 +10,58 @@
   --bg-surface-low: #f1f3f4;
   --bg-surface-high: #e8eaed;
   --bg-surface-highest: #dadce0;
-  
-  --primary-container: #1a73e8; /* Google Blue */
+
+  --primary-container: #1a73e8;
+  /* Google Blue */
   --on-primary-container: #ffffff;
-  --secondary-container: #ea4335; /* Google Red */
+  --secondary-container: #ea4335;
+  /* Google Red */
   --on-secondary-container: #ffffff;
-  
+
   --text-primary: #202124;
   --text-secondary: #5f6368;
   --text-muted: rgba(60, 64, 67, 0.4);
-  
+
   --accent-red: #ea4335;
   --accent-blue: #4285f4;
   --accent-yellow: #fbbc04;
   --accent-green: #34a853;
-  
-  --border-color: rgba(60, 64, 67, 0.25); /* Increased contrast for light mode */
+
+  --border-color: rgba(60, 64, 67, 0.25);
+  /* Increased contrast for light mode */
   --glass-bg: rgba(255, 255, 255, 0.7);
-  
+
   --font-display: 'Google Sans Flex', 'Inter', sans-serif;
   --font-body: 'Inter', sans-serif;
   --font-label: 'Space Grotesk', sans-serif;
 }
 
 .dark {
-  /* DARK MODE (Industrial Sovereign Style) */
-  --bg-primary: #050505; /* True Charcoal Black */
-  --bg-secondary: #0a0a0a;
-  --bg-surface-low: #121212;
-  --bg-surface-high: #1a1a1a;
+  /* DARK MODE (Cosmos Space) */
+  --bg-primary: #000000; /* Pure Black */
+  --bg-secondary: #050505;
+  --bg-surface-low: #0a0a0a;
+  --bg-surface-high: #121212;
   --bg-surface-highest: #222222;
-  
-  --primary-container: #E01E22; /* Industrial Red */
+
+  --primary-container: #E01E22;
+  /* Industrial Red */
   --on-primary-container: #ffffff;
-  --secondary-container: #0043eb; /* Electric Blue */
+  --secondary-container: #0043eb;
+  /* Electric Blue */
   --on-secondary-container: #ffffff;
-  
-  --text-primary: #ffffff !important; /* Force Pure White */
+
+  --text-primary: #ffffff !important;
+  /* Force Pure White */
   --text-secondary: rgba(255, 255, 255, 0.85);
   --text-muted: rgba(255, 255, 255, 0.5);
-  
+
   --accent-red: #E01E22;
   --accent-blue: #0043eb;
   --accent-cyan: #06b6d4;
-  
-  --border-color: rgba(255, 255, 255, 0.2); /* High contrast for dark mode */
+
+  --border-color: rgba(255, 255, 255, 0.2);
+  /* High contrast for dark mode */
   --accent-border: 2px solid var(--primary-container);
   --glass-bg: rgba(10, 10, 10, 0.7);
 }
@@ -62,7 +69,9 @@
 /* ─────────────────────────────────────────────────────
    BASE & RESET
 ───────────────────────────────────────────────────── */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
@@ -90,7 +99,8 @@ body {
 }
 
 .dark .node-network {
-  opacity: 0.1; /* Red dots at 10% opacity as per Signature Textures */
+  opacity: 0.1;
+  /* Red dots at 10% opacity as per Signature Textures */
 }
 
 .glass-panel {
@@ -125,7 +135,11 @@ body {
 /* ─────────────────────────────────────────────────────
    TYPOGRAPHY
 ───────────────────────────────────────────────────── */
-h1, h2, h3, h4, .font-space {
+h1,
+h2,
+h3,
+h4,
+.font-space {
   font-family: var(--font-display);
   text-transform: uppercase;
   letter-spacing: -0.02em;
@@ -164,7 +178,8 @@ h1, h2, h3, h4, .font-space {
   text-transform: uppercase;
   letter-spacing: 0.2em;
   padding: 1rem 2.5rem;
-  border: 2px solid var(--primary-container); /* Red border for industrial feel */
+  border: 2px solid var(--primary-container);
+  /* Red border for industrial feel */
   transition: all 0.2s ease;
   cursor: pointer;
 }
@@ -178,14 +193,21 @@ h1, h2, h3, h4, .font-space {
    ANIMATIONS
 ───────────────────────────────────────────────────── */
 @keyframes scan-line {
-  0% { transform: translateY(-100%); }
-  100% { transform: translateY(100vh); }
+  0% {
+    transform: translateY(-100%);
+  }
+
+  100% {
+    transform: translateY(100vh);
+  }
 }
 
 .scan-line {
   position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 2px;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
   background: linear-gradient(90deg, transparent, var(--primary-container), transparent);
   opacity: 0.1;
   animation: scan-line 8s linear infinite;
@@ -194,6 +216,14 @@ h1, h2, h3, h4, .font-space {
 }
 
 /* Custom Scrollbar */
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: var(--bg-primary); }
-::-webkit-scrollbar-thumb { background: var(--primary-container); }
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary-container);
+}

@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import InitializingKernel from "@/components/InitializingKernel";
 import { TelemetryProvider } from "@/components/TelemetryProvider";
+import { Toaster } from "react-hot-toast";
 
 export const metadata: Metadata = {
   title: "Nyay-Mitra – Legal AI Ecosystem",
@@ -34,6 +35,7 @@ export default function RootLayout({
       <body style={{ fontFamily: "'Google Sans Flex', 'Roboto', sans-serif" }} suppressHydrationWarning>
         <ThemeProvider>
           <TelemetryProvider>
+            <Toaster position="top-right" reverseOrder={false} />
             <InitializingKernel />
             <Navbar />
             <main className="min-h-screen">
