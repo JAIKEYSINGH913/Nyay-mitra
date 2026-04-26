@@ -16,6 +16,7 @@ import { account } from "@/lib/appwrite";
 const DynamicBackground = dynamic(() => import("@/components/DynamicBackground"), { ssr: false });
 const LegalGraph3D = dynamic(() => import("@/components/LegalGraph3D"), { ssr: false });
 const AuthModal = dynamic(() => import("@/components/AuthModal"), { ssr: false });
+const ResearchHubSection = dynamic(() => import("@/components/ResearchHubSection"), { ssr: false });
 
 export default function HomePage() {
   const [authModalOpen, setAuthModalOpen] = useState(false);
@@ -97,6 +98,8 @@ export default function HomePage() {
           </motion.div>
         </div>
       </section>
+
+      <ResearchHubSection />
 
       <OperationsSection />
       <TelemetrySection />

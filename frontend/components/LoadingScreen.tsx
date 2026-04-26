@@ -8,31 +8,49 @@ export default function LoadingScreen() {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    // Prevent scrolling while loading
-    document.body.style.overflow = "hidden";
-    
-    // Realistic multi-stage loading simulation
-    const interval = setInterval(() => {
-      setProgress(prev => {
-        if (prev >= 100) {
+    const handleShowLoading = () => {
+      setLoading(true);
+      setProgress(0);
+      document.body.style.overflow = "hidden";
+      
+      let currentProgress = 0;
+      const interval = setInterval(() => {
+        currentProgress += Math.random() * 5;
+        if (currentProgress >= 100) {
+          currentProgress = 100;
+          setProgress(100);
           clearInterval(interval);
           setTimeout(() => {
             setLoading(false);
-            // Re-enable scrolling after fade out
+            document.body.style.overflow = "auto";
+          }, 800);
+        } else {
+          setProgress(currentProgress);
+        }
+      }, 50);
+    };
+
+    window.addEventListener("showLoading", handleShowLoading);
+    
+    // Initial load
+    document.body.style.overflow = "hidden";
+    const initialInterval = setInterval(() => {
+      setProgress(prev => {
+        if (prev >= 100) {
+          clearInterval(initialInterval);
+          setTimeout(() => {
+            setLoading(false);
             document.body.style.overflow = "auto";
           }, 800);
           return 100;
         }
-        
-        // Fast initial, stabilizing toward the end
-        const increment = prev < 30 ? 3 : prev < 70 ? 1.5 : 0.8;
-        const next = prev + increment;
-        return next > 100 ? 100 : next;
+        return prev + 2;
       });
     }, 40);
 
     return () => {
-      clearInterval(interval);
+      window.removeEventListener("showLoading", handleShowLoading);
+      clearInterval(initialInterval);
       document.body.style.overflow = "auto";
     };
   }, []);

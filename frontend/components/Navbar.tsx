@@ -20,7 +20,8 @@ import {
   Cpu,
   Mic,
   BookOpen,
-  Info
+  Info,
+  History
 } from "lucide-react";
 import { useTelemetry } from "./TelemetryProvider";
 import ThemeToggle from "./ThemeToggle";
@@ -60,6 +61,14 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handler);
   }, []);
 
+  const handleHomeRedirect = (e: React.MouseEvent) => {
+    e.preventDefault();
+    window.dispatchEvent(new CustomEvent("showLoading"));
+    setTimeout(() => {
+      window.location.href = "/";
+    }, 100);
+  };
+
   const authUI = mounted ? !!currentUser : false;
 
   return (
@@ -73,7 +82,7 @@ export default function Navbar() {
       >
         <div className="h-full flex justify-between items-center relative z-10">
           <div className="flex items-center gap-16">
-            <Link href="/" className="flex items-center gap-4 group">
+            <Link href="/" onClick={handleHomeRedirect} className="flex items-center gap-4 group">
               <JusticeLogo className={`${scrolled ? "w-8 h-8" : "w-12 h-12"} transition-all`} />
               <div className="flex flex-col">
                 <div className="flex items-center gap-3">
@@ -125,6 +134,10 @@ export default function Navbar() {
               </div>
 
               <Link href="/research-hub" className="px-5 py-2 font-space text-[15px] font-bold tracking-[0.1em] text-white/80 hover:text-white transition-all uppercase">RESEARCH_HUB</Link>
+              <Link href="/history" className="px-5 py-2 font-space text-[15px] font-bold tracking-[0.1em] text-white/80 hover:text-white transition-all uppercase flex items-center gap-2">
+                <History className="w-4 h-4" />
+                RESEARCH_HISTORY
+              </Link>
               <Link href="/about" className="px-5 py-2 font-space text-[15px] font-bold tracking-[0.1em] text-white/80 hover:text-white transition-all uppercase">ABOUT_US</Link>
             </div>
           </div>
