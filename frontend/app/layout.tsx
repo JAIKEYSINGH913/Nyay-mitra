@@ -3,9 +3,9 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import InitializingKernel from "@/components/InitializingKernel";
 import { TelemetryProvider } from "@/components/TelemetryProvider";
 import { Toaster } from "react-hot-toast";
+import LoadingScreen from "@/components/LoadingScreen";
 
 export const metadata: Metadata = {
   title: "Nyay-Mitra – Legal AI Ecosystem",
@@ -36,7 +36,7 @@ export default function RootLayout({
         <ThemeProvider>
           <TelemetryProvider>
             <Toaster position="top-right" reverseOrder={false} />
-            <InitializingKernel />
+            <LoadingScreen />
             <Navbar />
             <main className="min-h-screen">
               {children}

@@ -14,170 +14,83 @@ export default function BridgeAnimation() {
     visible: {
       pathLength: 1,
       opacity: 1,
-      transition: { duration: 1.5, ease: "easeInOut", delay: 0.5 },
+      transition: { duration: 3, ease: "easeInOut", delay: 0.2 },
     },
   };
 
-  const particleCount = 12;
+  const particleCount = 15;
 
   return (
-    <div className="w-full max-w-2xl mx-auto relative group">
+    <div className="w-full h-full flex items-center justify-center relative group p-10">
       <svg
-        viewBox="0 0 700 280"
-        className="w-full h-auto overflow-visible"
+        viewBox="0 0 800 400"
+        className="w-full h-auto max-w-[600px] overflow-visible"
       >
         <defs>
           <linearGradient id="bridgeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#E01E22" />
-            <stop offset="100%" stopColor="#0043eb" />
+            <stop offset="0%" stopColor="var(--primary-container)" />
+            <stop offset="100%" stopColor="var(--secondary-container)" />
           </linearGradient>
-          <filter id="glow-red">
+          <filter id="subtleGlow">
             <feGaussianBlur stdDeviation="3" result="blur" />
             <feComposite in="SourceGraphic" in2="blur" operator="over" />
           </filter>
         </defs>
 
-        {/* Ground Line (Industrial) */}
-        <motion.line
-          x1="40" y1="240" x2="660" y2="240"
-          stroke="rgba(229, 226, 225, 0.1)"
-          strokeWidth="1"
-          initial={{ scaleX: 0 }}
-          animate={{ scaleX: 1 }}
-          transition={{ duration: 1 }}
-        />
-
-        {/* Left Module - IPC 1860 */}
-        <motion.rect
-          x="60" y="60" width="100" height="180"
-          fill="var(--bg-surface-low)"
-          stroke="var(--accent-red)"
-          strokeOpacity="0.3"
-          strokeWidth="1"
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="group-hover:stroke-accent-red transition-colors"
-        />
-        <rect x="60" y="60" width="100" height="4" fill="var(--accent-red)" />
-        
-        <text x="110" y="95" textAnchor="middle" fill="var(--accent-red)" fontSize="12" fontWeight="900" fontFamily="Space Grotesk">IPC_SYSTEM</text>
-        <text x="110" y="115" textAnchor="middle" fill="var(--text-primary)" fontSize="24" fontWeight="800" fontFamily="Space Grotesk">1860</text>
-        
-        {/* Telemetry data lines for left module */}
-        {[140, 155, 170, 185, 200, 215].map((y, i) => (
-          <motion.rect
-            key={y}
-            x="75" y={y} width={30 + Math.random() * 40} height="2"
-            fill="rgba(224, 30, 34, 0.2)"
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: 1 }}
-            transition={{ delay: 0.8 + i * 0.05 }}
-          />
-        ))}
-
-        {/* Right Module - BNS 2023 */}
-        <motion.rect
-          x="540" y="60" width="100" height="180"
-          fill="var(--bg-surface-low)"
-          stroke="var(--accent-blue)"
-          strokeOpacity="0.3"
-          strokeWidth="1"
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="group-hover:stroke-accent-blue transition-colors"
-        />
-        <rect x="540" y="60" width="100" height="4" fill="var(--accent-blue)" />
-        
-        <text x="590" y="95" textAnchor="middle" fill="var(--accent-blue)" fontSize="12" fontWeight="900" fontFamily="Space Grotesk">BNS_CORE</text>
-        <text x="590" y="115" textAnchor="middle" fill="var(--text-primary)" fontSize="24" fontWeight="800" fontFamily="Space Grotesk">2023</text>
-
-        {[140, 155, 170, 185, 200, 215].map((y, i) => (
-          <motion.rect
-            key={y}
-            x="555" y={y} width={30 + Math.random() * 40} height="2"
-            fill="rgba(0, 67, 235, 0.2)"
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: 1 }}
-            transition={{ delay: 1 + i * 0.05 }}
-          />
-        ))}
-
-        {/* The Bridge (Tectonic Shift Path) */}
+        {/* The PARABOLIC Bridge - SLIGHTLY THINNER & MORE FADED */}
         <motion.path
-          d="M 160 150 L 540 150"
+          d="M 150 250 Q 400 80 650 250"
           fill="none"
           stroke="url(#bridgeGrad)"
-          strokeWidth="2"
+          strokeWidth="2.5"
+          strokeLinecap="round"
           variants={pathVariants}
           initial="hidden"
           animate={controls}
+          filter="url(#subtleGlow)"
+          opacity="0.6"
         />
         
-        {/* Support lines for the bridge */}
+        {/* Faded Support Path */}
         <motion.path
-          d="M 160 140 L 540 140"
-          stroke="rgba(229, 226, 225, 0.05)"
+          d="M 150 260 Q 400 90 650 260"
+          fill="none"
+          stroke="var(--primary-container)"
+          strokeOpacity="0.05"
           strokeWidth="1"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 2 }}
-        />
-        <motion.path
-          d="M 160 160 L 540 160"
-          stroke="rgba(229, 226, 225, 0.05)"
-          strokeWidth="1"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 2.2 }}
         />
 
         {/* Flowing Data Stream Packets */}
         {Array.from({ length: particleCount }, (_, i) => (
-          <motion.rect
+          <motion.circle
             key={i}
-            width="8" height="2"
-            fill={i % 2 === 0 ? "#E01E22" : "#0043eb"}
-            filter="url(#glow-red)"
-            initial={{ opacity: 0 }}
+            r="2"
+            fill="white"
+            filter="url(#subtleGlow)"
+            initial={{ offsetDistance: "0%", opacity: 0 }}
             animate={{
-              opacity: [0, 1, 1, 0],
-              x: [160, 540]
+              offsetDistance: ["0%", "100%"],
+              opacity: [0, 0.8, 0.8, 0]
             }}
             transition={{
-              duration: 1.5,
-              delay: 2 + i * 0.3,
+              duration: 3,
+              delay: i * 0.5,
               repeat: Infinity,
               ease: "linear",
             }}
-            y={149}
+            style={{ offsetPath: "path('M 150 250 Q 400 80 650 250')" }}
           />
         ))}
 
-        {/* Migration Label */}
-        <motion.text
-          x="350" y="130"
-          textAnchor="middle"
-          fill="rgba(229, 226, 225, 0.4)"
-          fontSize="10"
-          fontFamily="Space Grotesk"
-          letterSpacing="0.4em"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 2.5 }}
-        >
-          DETERMINISTIC_MIGRATION_PROTOCOL_ACTIVE
-        </motion.text>
+        {/* Minimal Displacement Markers */}
+        <motion.circle cx="150" cy="250" r="4" fill="var(--primary-container)" opacity="0.4" />
+        <motion.circle cx="650" cy="250" r="4" fill="var(--secondary-container)" opacity="0.4" />
+        
+        <text x="150" y="285" textAnchor="middle" fill="var(--primary-container)" fontSize="12" fontWeight="900" fontFamily="var(--font-label)" opacity="0.3">IPC</text>
+        <text x="650" y="285" textAnchor="middle" fill="var(--secondary-container)" fontSize="12" fontWeight="900" fontFamily="var(--font-label)" opacity="0.3">BNS</text>
       </svg>
-      
-      {/* Absolute floating telemetry details */}
-      <div className="absolute top-0 right-0 p-4 border border-border-color bg-bg-surface-low opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-lg shadow-xl glass-panel">
-         <div className="telemetry-label !text-[8px] mb-2">BRIDGE_HEALTH</div>
-         <div className="flex gap-1 h-4">
-            {[1,1,1,1,1,0,0,1].map((v, i) => (
-              <div key={i} className={`w-1 h-full ${v ? 'bg-primary-container' : 'bg-bg-surface-high'}`} />
-            ))}
-         </div>
-      </div>
     </div>
   );
 }
