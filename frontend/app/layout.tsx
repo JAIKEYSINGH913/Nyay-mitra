@@ -7,6 +7,7 @@ import { TelemetryProvider } from "@/components/TelemetryProvider";
 import { NeuralProvider } from "@/components/NeuralProvider";
 import { Toaster } from "react-hot-toast";
 import LoadingScreen from "@/components/LoadingScreen";
+import CookieConsent from "@/components/CookieConsent";
 
 export const metadata: Metadata = {
   title: "Nyay-Mitra – Legal AI Ecosystem",
@@ -39,6 +40,7 @@ export default function RootLayout({
             <NeuralProvider>
               <Toaster position="top-right" reverseOrder={false} />
               <LoadingScreen />
+              <CookieConsent />
               <Navbar />
               <main className="min-h-screen">
                 {children}

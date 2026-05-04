@@ -12,7 +12,12 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const stored = localStorage.getItem("nyay-theme") as Theme | null;
-    if (stored) setTheme(stored);
+    if (stored) {
+      setTheme(stored);
+    } else {
+      // Force dark mode on first visit
+      setTheme("dark");
+    }
   }, []);
 
   useEffect(() => {
