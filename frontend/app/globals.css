@@ -66,24 +66,6 @@
   --accent-border: 2px solid var(--primary-container);
   --glass-bg: rgba(10, 10, 10, 0.7);
 
-  /* GLOBAL DARK MODE BUTTON OVERRIDE */
-  button:not(.theme-toggle), 
-  .btn-industrial,
-  .btn-industrial-outline,
-  input[type="button"],
-  input[type="submit"] {
-    background: #E01E22 !important; /* Force Industrial Red */
-    color: #ffffff !important;      /* Force Pure White Text */
-    border-color: #E01E22 !important;
-    background-image: none !important; /* Remove gradients */
-  }
-
-  button:not(.theme-toggle):hover,
-  .btn-industrial:hover,
-  .btn-industrial-outline:hover {
-    filter: brightness(1.2) !important;
-    box-shadow: 0 0 20px rgba(224, 30, 34, 0.4) !important;
-  }
 }
 
 /* ─────────────────────────────────────────────────────
