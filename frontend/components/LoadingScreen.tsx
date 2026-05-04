@@ -48,9 +48,17 @@ export default function LoadingScreen() {
       });
     }, 40);
 
+    // FAILSAFE: Force hide loading screen after 5 seconds
+    const failsafe = setTimeout(() => {
+      setLoading(false);
+      document.body.style.overflow = "auto";
+      clearInterval(initialInterval);
+    }, 5000);
+
     return () => {
       window.removeEventListener("showLoading", handleShowLoading);
       clearInterval(initialInterval);
+      clearTimeout(failsafe);
       document.body.style.overflow = "auto";
     };
   }, []);

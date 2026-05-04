@@ -3,7 +3,7 @@ package com.nyaymitra.kernel.controller;
 import com.nyaymitra.kernel.dto.NyayResponse;
 import com.nyaymitra.kernel.model.Statute;
 import com.nyaymitra.kernel.repository.StatuteRepository;
-import lombok.RequiredArgsConstructor;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -13,10 +13,13 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/statutes")
-@RequiredArgsConstructor
 public class StatuteController {
 
     private final StatuteRepository statuteRepository;
+
+    public StatuteController(StatuteRepository statuteRepository) {
+        this.statuteRepository = statuteRepository;
+    }
 
     @GetMapping("/ipc/archive")
     public NyayResponse<List<Statute>> getIpcArchive() {

@@ -4,7 +4,7 @@ import com.nyaymitra.kernel.dto.AuthRequest;
 import com.nyaymitra.kernel.dto.AuthResponse;
 import com.nyaymitra.kernel.dto.NyayResponse;
 import com.nyaymitra.kernel.service.AuthService;
-import lombok.RequiredArgsConstructor;
+
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,10 +14,13 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
-@RequiredArgsConstructor
 public class AuthController {
 
     private final AuthService authService;
+
+    public AuthController(AuthService authService) {
+        this.authService = authService;
+    }
 
     @PostMapping("/initialize")
     public NyayResponse<AuthResponse> login(@RequestBody AuthRequest request) {

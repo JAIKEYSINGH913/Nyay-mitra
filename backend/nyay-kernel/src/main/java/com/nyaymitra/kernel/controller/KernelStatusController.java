@@ -1,7 +1,7 @@
 package com.nyaymitra.kernel.controller;
 
 import com.nyaymitra.kernel.dto.NyayResponse;
-import lombok.RequiredArgsConstructor;
+
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.Session;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,36 +14,43 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/kernel")
-@RequiredArgsConstructor
 public class KernelStatusController {
 
     private final Driver neo4jDriver;
 
+    public KernelStatusController(Driver neo4jDriver) {
+        this.neo4jDriver = neo4jDriver;
+    }
+
     @GetMapping("/status")
     public NyayResponse<Map<String, Object>> getStatus() {
+        // ... (existing code)
+        return buildStatusResponse();
+    }
+
+    @GetMapping("/health")
+    public Map<String, Object> health() {
+        Map<String, Object> status = new HashMap<>();
+        status.put("status", "UP");
+        status.put("service", "NyayKernel");
+        
+        Map<String, Boolean> credentials = new HashMap<>();
+        credentials.put("neo4j", true); // Assumed true if service is up
+        credentials.put("gemini", System.getenv("GOOGLE_API_KEY") != null);
+        credentials.put("sarvam", System.getenv("SARVAM_API_KEY") != null);
+        status.put("credentials", credentials);
+        
+        return status;
+    }
+
+    private NyayResponse<Map<String, Object>> buildStatusResponse() {
         Map<String, Object> data = new HashMap<>();
         String neo4jStatus = "UNKNOWN";
-        
         try (Session session = neo4jDriver.session()) {
-            boolean result = session.run("RETURN 1").hasNext();
-            if (result) neo4jStatus = "UP";
-        } catch (Exception e) {
-            neo4jStatus = "DOWN: " + e.getMessage();
-        }
-
-        long uptime = ManagementFactory.getRuntimeMXBean().getUptime();
+            if (session.run("RETURN 1").hasNext()) neo4jStatus = "UP";
+        } catch (Exception e) { neo4jStatus = "DOWN"; }
         data.put("neo4j_status", neo4jStatus);
-        data.put("uptime_ms", uptime);
         data.put("service", "NyayKernel");
-
-        Map<String, Object> telemetry = new HashMap<>();
-        telemetry.put("process_id", ProcessHandle.current().pid());
-        telemetry.put("thread_count", ManagementFactory.getThreadMXBean().getThreadCount());
-
-        return NyayResponse.<Map<String, Object>>builder()
-                .status("SUCCESS")
-                .data(data)
-                .telemetry(telemetry)
-                .build();
+        return NyayResponse.<Map<String, Object>>builder().status("SUCCESS").data(data).build();
     }
 }

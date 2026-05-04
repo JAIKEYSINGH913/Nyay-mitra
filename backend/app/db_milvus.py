@@ -12,26 +12,36 @@ MILVUS_PASSWORD = os.getenv("MILVUS_PASSWORD")
 def connect_milvus():
     """Establishes connection to Zilliz/Milvus."""
     try:
+        if connections.has_connection("default"):
+            connections.disconnect("default")
+            
         if MILVUS_URI:
+            print(f"INFO: CONNECTING_TO_MILVUS_CLOUD: {MILVUS_URI}")
             connections.connect(
-                "default",
+                alias="default",
                 uri=MILVUS_URI,
                 user=MILVUS_USER,
                 password=MILVUS_PASSWORD,
                 secure=True
             )
         else:
-            connections.connect("default", host="localhost", port="19530")
-        print("✅ MILVUS_CONNECTION: ESTABLISHED")
+            print("INFO: CONNECTING_TO_MILVUS_LOCAL: localhost:19530")
+            connections.connect(alias="default", host="localhost", port="19530")
+        
+        # Verify connection
+        utility.list_collections()
+        print("INFO: MILVUS_CONNECTION: ESTABLISHED")
     except Exception as e:
-        print(f"❌ MILVUS_CONNECTION: FAILED - {e}")
+        print(f"ERROR: MILVUS_CONNECTION: FAILED - {e}")
+        raise e
+
 
 def init_milvus_collection():
     """Initializes the nyay_statutes collection for legal vector search."""
     collection_name = "nyay_statutes"
     
     if utility.has_collection(collection_name):
-        print(f"📡 COLLECTION_STATUS: {collection_name} ALREADY_EXISTS")
+        print(f"INFO: COLLECTION_STATUS: {collection_name} ALREADY_EXISTS")
         return Collection(collection_name)
 
     # 1. Define Schema
@@ -39,13 +49,13 @@ def init_milvus_collection():
         FieldSchema(name="id", dtype=DataType.INT64, is_primary=True, auto_id=True),
         FieldSchema(name="section_id", dtype=DataType.VARCHAR, max_length=100),
         FieldSchema(name="text_content", dtype=DataType.VARCHAR, max_length=65535),
-        FieldSchema(name="vector", dtype=DataType.FLOAT_VECTOR, dim=1536) # Dim: 1536 for Llama/OpenAI
+        FieldSchema(name="vector", dtype=DataType.FLOAT_VECTOR, dim=768) # Dim: 768 for InLegalBERT
     ]
     schema = CollectionSchema(fields, "Legal statute vector repository for Nyay-Mitra")
 
     # 2. Create Collection
     collection = Collection(collection_name, schema)
-    print(f"✅ COLLECTION_CREATED: {collection_name}")
+    print(f"INFO: COLLECTION_CREATED: {collection_name}")
 
     # 3. Create Index (HNSW for ultra-fast latency)
     index_params = {
@@ -54,7 +64,7 @@ def init_milvus_collection():
         "params": {"M": 8, "efConstruction": 64}
     }
     collection.create_index(field_name="vector", index_params=index_params)
-    print("⚡ INDEX_TYPE: HNSW_INITIALIZED")
+    print("INFO: INDEX_TYPE: HNSW_INITIALIZED")
     
     return collection
 

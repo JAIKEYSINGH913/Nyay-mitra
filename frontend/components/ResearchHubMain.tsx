@@ -19,7 +19,7 @@ export default function ResearchHubMain() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [showResult, setShowResult] = useState(false);
-  const [activeTab, setActiveTab] = useState("SUMMARY");
+  const [activeTab, setActiveTab] = useState("TECH_STACK");
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -178,7 +178,7 @@ export default function ResearchHubMain() {
                             <div className="text-[9px] text-white/30 uppercase font-bold tracking-widest mb-3">{tech.use}</div>
 
                             {/* Hover Reveal Description */}
-                            <div className="max-h-0 group-hover:max-h-24 opacity-0 group-hover:opacity-100 transition-all duration-500 overflow-hidden">
+                            <div className="mt-2 opacity-100 transition-all duration-500 overflow-hidden">
                               <p className="text-[10px] text-white/40 leading-relaxed pt-2 border-t border-white/5">{tech.desc}</p>
                             </div>
                           </motion.div>

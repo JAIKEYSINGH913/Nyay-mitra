@@ -209,7 +209,7 @@ export default function AboutSection() {
   );
 }
 
-function AcademicGapItem({ title, desc }) {
+function AcademicGapItem({ title, desc }: any) {
   return (
     <div className="space-y-4 border-l border-red-500/10 pl-6 group">
        <h4 className="text-xl font-black uppercase tracking-tight text-white group-hover:text-red-500 transition-colors">{title}</h4>
@@ -218,7 +218,7 @@ function AcademicGapItem({ title, desc }) {
   );
 }
 
-function AcademicSolutionItem({ title, desc }) {
+function AcademicSolutionItem({ title, desc }: any) {
   return (
     <div className="space-y-4 border-l border-primary-container/10 pl-6 group">
        <h4 className="text-xl font-black uppercase tracking-tight text-white group-hover:text-primary-container transition-colors">{title}</h4>
@@ -227,7 +227,7 @@ function AcademicSolutionItem({ title, desc }) {
   );
 }
 
-function MemberRow({ member, index }) {
+function MemberRow({ member, index }: any) {
   const isLeft = member.direction === "left";
   
   return (

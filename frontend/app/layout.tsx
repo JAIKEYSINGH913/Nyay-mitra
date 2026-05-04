@@ -4,6 +4,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { TelemetryProvider } from "@/components/TelemetryProvider";
+import { NeuralProvider } from "@/components/NeuralProvider";
 import { Toaster } from "react-hot-toast";
 import LoadingScreen from "@/components/LoadingScreen";
 
@@ -35,13 +36,15 @@ export default function RootLayout({
       <body style={{ fontFamily: "'Google Sans Flex', 'Roboto', sans-serif" }} suppressHydrationWarning>
         <ThemeProvider>
           <TelemetryProvider>
-            <Toaster position="top-right" reverseOrder={false} />
-            <LoadingScreen />
-            <Navbar />
-            <main className="min-h-screen">
-              {children}
-            </main>
-            <Footer />
+            <NeuralProvider>
+              <Toaster position="top-right" reverseOrder={false} />
+              <LoadingScreen />
+              <Navbar />
+              <main className="min-h-screen">
+                {children}
+              </main>
+              <Footer />
+            </NeuralProvider>
           </TelemetryProvider>
         </ThemeProvider>
       </body>

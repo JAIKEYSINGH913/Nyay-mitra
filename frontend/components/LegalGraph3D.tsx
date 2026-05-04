@@ -5,7 +5,7 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls, Sphere, MeshDistortMaterial, Float, Text, Line, Stars } from "@react-three/drei";
 import * as THREE from "three";
 
-const NODE_COUNT = 24; 
+const NODE_COUNT = 12; 
 const COLORS = ["#E01E22", "#0043eb", "#ffffff", "#3b82f6", "#ef4444"];
 
 interface Node {
@@ -82,7 +82,7 @@ function GraphContent() {
       <pointLight position={[-15, -15, -15]} intensity={2} color="#ffffff" />
 
       {/* Industrial Grid Base (Cinematic) */}
-      <gridHelper args={[60, 60, "#ffffff", "#333333"]} position={[0, -12, 0]} opacity={0.15} transparent />
+      <gridHelper args={[60, 60, "#ffffff", "#333333"]} position={[0, -12, 0]} />
 
       {/* Render Edges - Cinematic Glow Lines */}
       {edges.map((edge, i) => (

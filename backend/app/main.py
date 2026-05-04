@@ -25,7 +25,7 @@ async def health_check():
         "credentials": {
             "neo4j": bool(os.getenv("NEO4J_API_KEY")),
             "gemini": bool(os.getenv("GEMINI_API_KEY")),
-            "bhashini": bool(os.getenv("BHASHINI_API_KEY"))
+            "sarvam": bool(os.getenv("SARVAM_API_KEY"))
         }
     }
 

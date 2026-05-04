@@ -1,7 +1,7 @@
 import os
 
-# Bhashini API placeholder (Mock implementation)
-def bhashini_translate(query, source_lang='en', target_lang='hi'):
+# Sarvam AI API placeholder (Mock implementation)
+def sarvam_translate(query, source_lang='en', target_lang='hi'):
     """
     Translates regional queries into English for grounded legal response analysis.
     """
@@ -21,7 +21,7 @@ def legal_query_response(regional_query, lang):
     """
     Takes regional language input, translates, and gives grounded response.
     """
-    en_query = bhashini_translate(regional_query, source_lang=lang)
+    en_query = sarvam_translate(regional_query, source_lang=lang)
     # Perform Neo4j/RAG grounded retrieval in english here
     # grounded_results = rag.query(en_query)
     

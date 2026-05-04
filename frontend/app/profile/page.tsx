@@ -1,9 +1,30 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { motion } from "framer-motion";
-import { User, Mail, ShieldCheck, Calendar, Phone, LogOut, Terminal, ArrowLeft, Key, History, Trash2, Edit3, Save } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { 
+  User, 
+  Mail, 
+  ShieldCheck, 
+  Calendar, 
+  Phone, 
+  LogOut, 
+  Terminal, 
+  ArrowLeft, 
+  Key, 
+  History, 
+  Trash2, 
+  Edit3, 
+  Save,
+  ShieldAlert,
+  X,
+  Fingerprint,
+  Activity,
+  UserCheck,
+  AlertTriangle
+} from "lucide-react";
 import { account, databases, NYAY_DB_ID, COLLECTIONS } from "@/lib/appwrite";
 import Link from "next/link";
+import toast from "react-hot-toast";
 
 export default function ProfilePage() {
   const [user, setUser] = useState<any>(null);
@@ -11,7 +32,13 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState<{ type: "success" | "error", text: string } | null>(null);
+  
+  // Security States
+  const [showOtpModal, setShowOtpModal] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [otpValue, setOtpValue] = useState("");
+  const [otpPurpose, setOtpPurpose] = useState<"delete" | "reset" | null>(null);
+  const [otpLoading, setOtpLoading] = useState(false);
 
   const [editData, setEditData] = useState({
     fullName: "",
@@ -20,242 +47,351 @@ export default function ProfilePage() {
     dob: ""
   });
 
-  useEffect(() => {
-    const fetchData = async () => {
+  const fetchData = async () => {
+    try {
+      const currentUser = await account.get();
+      setUser(currentUser);
+      
       try {
-        const currentUser = await account.get();
-        setUser(currentUser);
-        
-        // Fetch from database using the same ID
         const userProfile = await databases.getDocument(NYAY_DB_ID, COLLECTIONS.PROFILES, currentUser.$id);
         setProfile(userProfile);
         setEditData({
-          fullName: userProfile.fullName,
-          username: userProfile.username,
+          fullName: userProfile.fullName || currentUser.name || "",
+          username: userProfile.username || "",
           phone: userProfile.phone || "",
           dob: userProfile.dob || ""
         });
-      } catch (err) {
-        console.error("Profile Fetch Error:", err);
-        // If profile document doesn't exist but user does, it might be an old user
-        // We'll handle this by showing placeholders or redirecting
-      } finally {
-        setLoading(false);
+      } catch (e) {
+        setEditData({
+          fullName: currentUser.name || "",
+          username: "",
+          phone: "",
+          dob: ""
+        });
+        setEditing(true); 
       }
-    };
+    } catch (err: any) {
+      if (err.code === 401) window.location.href = "/";
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchData();
   }, []);
 
+  const handleLogout = async () => {
+    try {
+      await account.deleteSession("current");
+      window.location.href = "/";
+    } catch (err) {
+      toast.error("Logout failed. Please try again.");
+    }
+  };
+
   const handleSaveProfile = async () => {
     setSaving(true);
-    setMessage(null);
     try {
-      await databases.updateDocument(NYAY_DB_ID, COLLECTIONS.PROFILES, user.$id, {
+      const payload = {
         fullName: editData.fullName,
         username: editData.username,
         phone: editData.phone,
-        dob: editData.dob
-      });
-      setProfile({ ...profile, ...editData });
+        dob: editData.dob,
+        email: user.email,
+        isProfileComplete: true
+      };
+
+      if (!profile) {
+        const newDoc = await databases.createDocument(NYAY_DB_ID, COLLECTIONS.PROFILES, user.$id, payload);
+        setProfile(newDoc);
+      } else {
+        await databases.updateDocument(NYAY_DB_ID, COLLECTIONS.PROFILES, user.$id, payload);
+        setProfile({ ...profile, ...payload });
+      }
       setEditing(false);
-      setMessage({ type: "success", text: "IDENTITY_UPDATED: Profile parameters synchronized." });
+      toast.success("Identity updated successfully!");
     } catch (err: any) {
-      setMessage({ type: "error", text: err.message || "SYNC_FAILED: Could not update profile." });
+      toast.error(err.message || "Failed to save profile.");
     } finally {
       setSaving(false);
     }
   };
 
-  const handlePasswordReset = async () => {
+  const initiateSecurityAction = async (purpose: "delete" | "reset") => {
+    setOtpPurpose(purpose);
+    setOtpLoading(true);
     try {
-      await account.createRecovery(user.email, `${window.location.origin}/reset-password`);
-      setMessage({ type: "success", text: "RESET_LINK_SENT: Check your primary email for verification OTP." });
-    } catch (err: any) {
-      setMessage({ type: "error", text: "DISPATCH_FAILED: Could not send reset link." });
+      await account.createEmailToken(user.$id, user.email);
+      setShowOtpModal(true);
+      toast.success("Verification code sent to your email.");
+    } catch (err) {
+      toast.error("Could not send code.");
+    } finally {
+      setOtpLoading(false);
     }
   };
 
-  const handleDeleteAccount = async () => {
-    if (confirm("CRITICAL_ACTION: This will permanently purge your identity from Nyay-Mitra. Proceed?")) {
-      try {
-        // Appwrite account delete is usually for Admin SDK, 
-        // but we can delete the profile and log out.
+  const verifySecurityAction = async () => {
+    setOtpLoading(true);
+    try {
+      await account.createSession(user.$id, otpValue);
+      
+      if (otpPurpose === "delete") {
         await databases.deleteDocument(NYAY_DB_ID, COLLECTIONS.PROFILES, user.$id);
         await account.deleteSession("current");
+        toast.success("Account deleted.");
         window.location.href = "/";
-      } catch (err) {
-        setMessage({ type: "error", text: "PURGE_FAILED: Could not delete account records." });
+      } else if (otpPurpose === "reset") {
+        await account.createRecovery(user.email, `${window.location.origin}/reset-password`);
+        toast.success("Reset link sent.");
+        setShowOtpModal(false);
       }
+    } catch (err) {
+      toast.error("Invalid code.");
+    } finally {
+      setOtpLoading(false);
     }
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#050505] flex items-center justify-center font-mono text-primary-container">
-        INITIALIZING_PROFILE_TERMINAL...
+      <div className="min-h-screen bg-black flex flex-col items-center justify-center font-space text-white">
+        <div className="w-10 h-10 border-2 border-primary-container border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#050505] pt-32 pb-20 px-4">
-      <div className="max-w-4xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <Link href="/" className="inline-flex items-center gap-2 text-[10px] font-bold text-text-muted uppercase tracking-widest hover:text-primary-container transition-colors">
-            <ArrowLeft className="w-3 h-3" /> Return_to_Core
+    <div className="min-h-screen bg-black text-white pt-20 pb-20 px-6 font-space selection:bg-primary-container selection:text-black relative">
+      
+      {/* BACKGROUND TITLE */}
+      <div className="absolute top-32 left-1/2 -translate-x-1/2 w-full text-center pointer-events-none z-0">
+        <h1 className="text-[15vw] font-black tracking-tighter uppercase opacity-[0.05] leading-none select-none">
+          PROFILE
+        </h1>
+      </div>
+
+      <div className="max-w-4xl mx-auto relative z-10">
+        
+        {/* NAV */}
+        <div className="pt-[10vw] mb-12">
+          <Link href="/" className="inline-flex items-center gap-4 text-[12px] font-black uppercase tracking-[0.4em] text-white/40 hover:text-primary-container transition-all group">
+            <div className="w-12 h-[1px] bg-white/10 group-hover:bg-primary-container transition-all" />
+            <ArrowLeft className="w-4 h-4" /> RETURN TO HUB
           </Link>
-          {message && (
-            <motion.div 
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              className={`px-4 py-2 text-[10px] font-bold uppercase tracking-widest border ${message.type === "success" ? "bg-green-500/10 border-green-500/50 text-green-500" : "bg-red-500/10 border-red-500/50 text-red-500"}`}
-            >
-              {message.text}
-            </motion.div>
-          )}
         </div>
 
+        {/* PROFILE CARD */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="glass-panel border border-border-color overflow-hidden rounded-2xl"
+          className="bg-[#0a0a0a] border border-white/5 rounded-[2.5rem] overflow-hidden shadow-2xl"
         >
-          {/* Header */}
-          <div className="p-8 border-b border-border-color bg-bg-surface-low flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-            <div className="flex items-center gap-6">
-              <div className="w-20 h-20 rounded-full border-2 border-primary-container flex items-center justify-center bg-primary-container/10">
-                <User className="w-10 h-10 text-primary-container" />
-              </div>
-              <div>
-                <h1 className="text-3xl font-black tracking-tighter text-text-primary uppercase">{profile?.fullName || user?.name || "ANONYMOUS_OPERATOR"}</h1>
-                <div className="flex items-center gap-3 mt-2">
-                  <span className="px-2 py-0.5 bg-primary-container/20 text-primary-container text-[8px] font-bold uppercase tracking-widest border border-primary-container/30">LEVEL_1_VERIFIED</span>
-                  <span className="text-[10px] font-mono text-text-muted">UID: {user?.$id}</span>
+          {/* TOP SECTION */}
+          <div className="p-8 md:p-12 border-b border-white/5 bg-white/[0.01] flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+             <div className="flex items-center gap-6">
+                <div className="w-20 h-20 rounded-2xl bg-primary-container flex items-center justify-center shadow-[0_0_30px_rgba(0,243,255,0.3)]">
+                  <User className="w-10 h-10 text-black" />
                 </div>
-              </div>
-            </div>
-            <div className="flex gap-3">
-              <button 
-                onClick={() => setEditing(!editing)}
-                className="px-6 py-3 border border-border-color text-text-primary text-[10px] font-bold uppercase tracking-widest hover:border-primary-container transition-all flex items-center gap-2"
-              >
-                {editing ? <><ArrowLeft className="w-4 h-4" /> Cancel</> : <><Edit3 className="w-4 h-4" /> Edit_Identity</>}
-              </button>
-              <button 
-                onClick={handleLogout}
-                className="px-6 py-3 border border-red-500/50 text-red-500 text-[10px] font-bold uppercase tracking-widest hover:bg-red-500/10 transition-all flex items-center gap-2"
-              >
-                <LogOut className="w-4 h-4" /> Terminate_Session
-              </button>
-            </div>
+                <div>
+                   <h2 className="text-3xl font-black tracking-tighter uppercase mb-1">
+                     {profile?.fullName || user?.name || "User"}
+                   </h2>
+                   <p className="text-[10px] font-black text-white/30 uppercase tracking-widest">Standard Identification // {user?.$id.slice(0, 8)}</p>
+                </div>
+             </div>
+             
+             <div className="flex gap-3">
+                <button 
+                  onClick={() => setEditing(!editing)}
+                  className="px-6 py-3 bg-white text-black text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-primary-container hover:text-black transition-all transform hover:scale-105 active:scale-95"
+                >
+                  {editing ? "Cancel" : "Edit Details"}
+                </button>
+                <button 
+                  onClick={() => setShowLogoutModal(true)}
+                  className="px-4 py-3 bg-white/5 border border-white/10 text-white/40 rounded-xl hover:bg-red-500 hover:text-white hover:border-red-500 transition-all transform hover:scale-110 active:scale-90"
+                >
+                   <LogOut className="w-4 h-4" />
+                </button>
+             </div>
           </div>
 
-          {/* Body */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-8">
-            {/* Identity Column */}
-            <div className="space-y-6">
-               <h3 className="text-[11px] font-bold text-text-muted uppercase tracking-[0.2em] flex items-center gap-2">
-                 <Terminal className="w-4 h-4 text-primary-container" /> Identity_Details
-               </h3>
-               
-               <div className="space-y-4">
-                 {editing ? (
-                   <div className="space-y-4">
-                     <EditField label="FULL_NAME" value={editData.fullName} onChange={(v) => setEditData({...editData, fullName: v})} />
-                     <EditField label="USERNAME" value={editData.username} onChange={(v) => setEditData({...editData, username: v})} />
-                     <EditField label="PHONE" value={editData.phone} onChange={(v) => setEditData({...editData, phone: v})} />
-                     <EditField label="DATE_OF_BIRTH" value={editData.dob} onChange={(v) => setEditData({...editData, dob: v})} />
-                     <button 
-                      onClick={handleSaveProfile}
-                      disabled={saving}
-                      className="w-full btn-industrial py-4 flex items-center justify-center gap-2"
-                     >
-                       <Save className="w-4 h-4" /> {saving ? "SYNCHRONIZING..." : "SAVE_PARAMETERS"}
-                     </button>
+          <div className="grid grid-cols-1 md:grid-cols-2">
+             {/* LEFT: INFO */}
+             <div className="p-8 md:p-12 space-y-10 border-r border-white/5">
+                <div className="space-y-6">
+                   <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/20">Profile Settings</h3>
+                   
+                   {editing ? (
+                     <div className="space-y-4">
+                        <SimpleEditField label="Name" value={editData.fullName} onChange={(v) => setEditData({...editData, fullName: v})} />
+                        <SimpleEditField label="Username" value={editData.username} onChange={(v) => setEditData({...editData, username: v})} />
+                        <SimpleEditField label="Phone" value={editData.phone} onChange={(v) => setEditData({...editData, phone: v})} />
+                        <SimpleEditField label="Birthday" value={editData.dob} onChange={(v) => setEditData({...editData, dob: v})} />
+                        
+                        <div className="grid grid-cols-2 gap-3 pt-4">
+                           <button 
+                             onClick={() => setEditing(false)}
+                             className="py-4 border border-white/10 text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-white hover:text-black transition-all"
+                           >
+                             Cancel
+                           </button>
+                           <button 
+                             onClick={handleSaveProfile}
+                             disabled={saving}
+                             className="py-4 bg-primary-container text-black font-black uppercase tracking-widest rounded-xl hover:bg-cyan-400 transition-all shadow-lg active:scale-95"
+                           >
+                             {saving ? "Saving..." : "Save"}
+                           </button>
+                        </div>
+                     </div>
+                   ) : (
+                     <div className="space-y-4">
+                        <SimpleInfo icon={<Mail />} label="Email" value={user?.email} />
+                        <SimpleInfo icon={<Phone />} label="Phone" value={profile?.phone || "Not added"} />
+                        <SimpleInfo icon={<ShieldCheck />} label="Username" value={profile?.username || "Not added"} />
+                        <SimpleInfo icon={<Calendar />} label="Birthday" value={profile?.dob || "Not added"} />
+                     </div>
+                   )}
+                </div>
+             </div>
+
+             {/* RIGHT: ACTIONS */}
+             <div className="p-8 md:p-12 space-y-10">
+                <div className="space-y-6">
+                   <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/20">Security</h3>
+                   
+                   <div className="p-6 bg-white/[0.02] border border-white/5 rounded-2xl space-y-4">
+                      <div className="flex justify-between items-center">
+                        <span className="text-[10px] font-black uppercase text-white/30">Verification Status</span>
+                        <span className={`text-[10px] font-black uppercase ${user?.emailVerification ? "text-green-500" : "text-yellow-500"}`}>
+                          {user?.emailVerification ? "Verified" : "Action Required"}
+                        </span>
+                      </div>
+
+                      <div className="pt-4 space-y-2">
+                        <button 
+                          onClick={() => initiateSecurityAction("reset")}
+                          className="w-full py-4 bg-white/5 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-primary-container hover:text-black transition-all"
+                        >
+                          Reset Password
+                        </button>
+                        <button 
+                          onClick={() => initiateSecurityAction("delete")}
+                          className="w-full py-4 text-red-600 text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-red-600 hover:text-white transition-all"
+                        >
+                          Delete Account
+                        </button>
+                      </div>
                    </div>
-                 ) : (
-                   <>
-                     <InfoField icon={<Mail className="w-4 h-4" />} label="Email_Identity" value={user?.email} />
-                     <InfoField icon={<Phone className="w-4 h-4" />} label="Communication_Line" value={profile?.phone || "NOT_ASSIGNED"} />
-                     <InfoField icon={<ShieldCheck className="w-4 h-4" />} label="System_Alias" value={profile?.username || "GUEST"} />
-                     <InfoField icon={<Calendar className="w-4 h-4" />} label="Temporal_Origin" value={profile?.dob || "UNKNOWN"} />
-                   </>
-                 )}
-               </div>
-            </div>
-
-            {/* Security & History Column */}
-            <div className="space-y-8">
-               <div className="space-y-6">
-                 <h3 className="text-[11px] font-bold text-text-muted uppercase tracking-[0.2em] flex items-center gap-2">
-                   <ShieldCheck className="w-4 h-4 text-accent-red" /> Security_Protocol
-                 </h3>
-                 
-                 <div className="p-6 border border-border-color bg-bg-surface-low rounded-xl space-y-4">
-                    <div className="flex justify-between items-center">
-                      <span className="text-[10px] font-bold uppercase text-text-muted">Account_Verification</span>
-                      <span className={user?.emailVerification ? "text-[10px] font-bold uppercase text-green-500" : "text-[10px] font-bold uppercase text-yellow-500"}>
-                        {user?.emailVerification ? "VERIFIED" : "PENDING"}
-                      </span>
-                    </div>
-                    <div className="grid grid-cols-2 gap-3 pt-4 border-t border-border-color">
-                      <button 
-                        onClick={handlePasswordReset}
-                        className="py-3 bg-bg-surface-high border border-border-color text-[9px] font-bold uppercase tracking-widest hover:border-primary-container transition-all flex items-center justify-center gap-2"
-                      >
-                        <Key className="w-3 h-3" /> Reset_Password
-                      </button>
-                      <button 
-                        onClick={handleDeleteAccount}
-                        className="py-3 bg-red-500/5 border border-red-500/20 text-red-500 text-[9px] font-bold uppercase tracking-widest hover:bg-red-500/10 transition-all flex items-center justify-center gap-2"
-                      >
-                        <Trash2 className="w-3 h-3" /> Purge_Identity
-                      </button>
-                    </div>
-                 </div>
-               </div>
-
-               <div className="space-y-6">
-                 <h3 className="text-[11px] font-bold text-text-muted uppercase tracking-[0.2em] flex items-center gap-2">
-                   <History className="w-4 h-4 text-blue-500" /> Operational_History
-                 </h3>
-                 
-                 <div className="p-6 border border-border-color bg-bg-surface-low rounded-xl space-y-4">
-                    <p className="text-[10px] text-text-muted uppercase italic">No active logs found in current sector.</p>
-                    <button className="w-full py-3 bg-bg-surface-high border border-border-color text-[9px] font-bold uppercase tracking-widest hover:border-blue-500 transition-all flex items-center justify-center gap-2">
-                      <History className="w-3 h-3" /> Clear_Session_Logs
-                    </button>
-                 </div>
-               </div>
-            </div>
+                </div>
+             </div>
           </div>
         </motion.div>
+
+        {/* SIGNATURE SECTION */}
+        <div className="mt-32 pb-20">
+          <div className="flex flex-col md:flex-row justify-between items-end gap-16 relative z-10">
+             <div className="font-space text-5xl md:text-[8rem] font-black tracking-tighter leading-none opacity-5 hover:opacity-10 transition-opacity select-none cursor-default">
+               NYAY-MITRA
+             </div>
+             <div className="font-space text-[10px] tracking-widest opacity-30 uppercase font-bold mb-4">
+               © 2026 Sovereign_Judicial_Engine
+             </div>
+          </div>
+        </div>
       </div>
+
+      {/* LOGOUT CONFIRMATION MODAL */}
+      <AnimatePresence>
+        {showLogoutModal && (
+          <div className="fixed inset-0 z-[400] flex items-center justify-center p-4">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowLogoutModal(false)} className="absolute inset-0 bg-black/90 backdrop-blur-xl" />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}
+              className="relative w-full max-w-sm bg-[#0a0a0a] border border-white/10 p-10 rounded-[2.5rem] shadow-2xl"
+            >
+               <div className="text-center space-y-8">
+                  <div className="w-16 h-16 bg-white/5 border border-white/10 rounded-full flex items-center justify-center mx-auto">
+                    <AlertTriangle className="w-8 h-8 text-yellow-500" />
+                  </div>
+                  <div className="space-y-2">
+                    <h2 className="text-xl font-black uppercase tracking-tighter text-white">Terminate Session?</h2>
+                    <p className="text-[10px] text-white/30 uppercase tracking-widest leading-relaxed">Are you sure you want to log out of the Nyay-Mitra dashboard?</p>
+                  </div>
+                  <div className="flex gap-3">
+                    <button onClick={() => setShowLogoutModal(false)} className="flex-1 py-5 border border-white/10 text-[10px] font-black uppercase tracking-widest rounded-2xl hover:bg-white/5 transition-all">Cancel</button>
+                    <button onClick={handleLogout} className="flex-1 py-5 bg-red-600 text-white text-[10px] font-black uppercase tracking-widest rounded-2xl hover:bg-red-700 transition-all shadow-[0_0_20px_rgba(220,38,38,0.3)]">Logout</button>
+                  </div>
+               </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* VERIFICATION MODAL */}
+      <AnimatePresence>
+        {showOtpModal && (
+          <div className="fixed inset-0 z-[300] flex items-center justify-center p-4">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowOtpModal(false)} className="absolute inset-0 bg-black/90 backdrop-blur-xl" />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}
+              className="relative w-full max-w-sm bg-[#050505] border border-white/10 p-10 rounded-[2.5rem] shadow-2xl"
+            >
+               <div className="text-center space-y-6">
+                  <div className="w-16 h-16 bg-red-600/10 border border-red-600/30 rounded-full flex items-center justify-center mx-auto">
+                    <ShieldAlert className="w-8 h-8 text-red-600" />
+                  </div>
+                  <h2 className="text-xl font-black uppercase tracking-tighter text-white">Security Check</h2>
+                  <p className="text-[10px] text-white/30 uppercase tracking-widest">Enter the code sent to your email</p>
+                  
+                  <input 
+                    type="text" 
+                    maxLength={6}
+                    value={otpValue}
+                    onChange={(e) => setOtpValue(e.target.value)}
+                    placeholder="000000"
+                    className="w-full bg-white/5 border border-white/10 py-5 text-center text-3xl font-black tracking-[0.2em] text-red-600 focus:outline-none focus:border-red-600 rounded-2xl"
+                  />
+
+                  <div className="flex gap-3">
+                    <button onClick={() => setShowOtpModal(false)} className="flex-1 py-4 bg-white/5 text-[10px] font-black uppercase tracking-widest rounded-xl">Abort</button>
+                    <button onClick={verifySecurityAction} disabled={otpLoading || otpValue.length < 6} className="flex-1 py-4 bg-red-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl disabled:opacity-50">Confirm</button>
+                  </div>
+               </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
 
-function EditField({ label, value, onChange }: { label: string, value: string, onChange: (v: string) => void }) {
+function SimpleEditField({ label, value, onChange }: { label: string, value: string, onChange: (v: string) => void }) {
   return (
-    <div className="space-y-1">
-      <label className="text-[8px] font-bold text-text-muted uppercase tracking-widest pl-1">{label}</label>
+    <div className="space-y-2">
+      <label className="text-[9px] font-black text-white/40 uppercase tracking-widest ml-1">{label}</label>
       <input 
         type="text" 
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full bg-bg-surface-low border border-border-color py-3 px-4 font-mono text-[11px] uppercase tracking-widest text-text-primary focus:outline-none focus:border-primary-container transition-all"
+        className="w-full bg-white/[0.03] border border-white/10 py-4 px-5 text-[12px] uppercase tracking-widest text-white focus:outline-none focus:border-primary-container rounded-xl transition-all"
       />
     </div>
   );
 }
 
-function InfoField({ icon, label, value }: { icon: React.ReactNode, label: string, value: string }) {
+function SimpleInfo({ icon, label, value }: { icon: React.ReactElement, label: string, value: string }) {
   return (
-    <div className="flex items-center gap-4 p-4 border border-border-color bg-bg-surface-high/10 rounded-lg">
-      <div className="text-text-muted">{icon}</div>
+    <div className="flex items-center gap-4 p-5 bg-white/[0.02] border border-white/5 rounded-2xl group hover:border-primary-container/30 transition-all">
+      <div className="text-white/20 group-hover:text-primary-container transition-colors">
+        {React.cloneElement(icon as React.ReactElement<any>, { className: "w-4 h-4" })}
+      </div>
       <div>
-        <div className="text-[8px] font-bold text-text-muted uppercase tracking-widest mb-1">{label}</div>
-        <div className="text-[11px] font-mono text-text-primary uppercase">{value}</div>
+        <div className="text-[8px] font-black text-white/20 uppercase tracking-widest mb-0.5">{label}</div>
+        <div className="text-[11px] font-black text-white/80 uppercase tracking-widest">{value}</div>
       </div>
     </div>
   );

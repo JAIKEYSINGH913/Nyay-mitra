@@ -53,8 +53,8 @@
 
   --text-primary: #ffffff !important;
   /* Force Pure White */
-  --text-secondary: rgba(255, 255, 255, 0.85);
-  --text-muted: rgba(255, 255, 255, 0.5);
+  --text-secondary: rgba(255, 255, 255, 0.92);
+  --text-muted: rgba(255, 255, 255, 0.7);
 
   --accent-red: #E01E22;
   --accent-blue: #0043eb;

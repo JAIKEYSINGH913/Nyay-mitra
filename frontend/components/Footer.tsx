@@ -11,8 +11,13 @@ import {
   Lock,
   Globe
 } from "lucide-react";
+import { useTelemetry } from "./TelemetryProvider";
+import { useState } from "react";
+import SystemReportGenerator from "./SystemReportGenerator";
 
 export default function Footer() {
+  const telemetry = useTelemetry();
+  const [showBreakdown, setShowBreakdown] = useState(false);
   return (
     <footer className="bg-bg-primary py-24 md:py-32 px-10 border-t border-border-color transition-colors relative overflow-hidden">
       {/* Clean Industrial Background */}
@@ -117,13 +122,48 @@ export default function Footer() {
            <span className="telemetry-label !text-[10px] opacity-40 font-black">© 2026 NYAY-MITRA // INDUSTRIAL_COMPUTING</span>
         </div>
         <div className="flex items-center gap-10">
-           <div className="flex items-center gap-2">
-              <Activity className="w-3 h-3 text-primary-container" />
-              <span className="telemetry-label !text-[9px] opacity-50">LATENCY: 0.04MS</span>
+           <div className="relative">
+             <button 
+               onClick={() => setShowBreakdown(!showBreakdown)}
+               className="flex items-center gap-2 hover:bg-white/5 p-2 rounded transition-colors group"
+             >
+                <Activity className={`w-3 h-3 ${telemetry.trt > 2000 ? 'text-amber-500' : 'text-primary-container'}`} />
+                <span className={`telemetry-label !text-[9px] font-bold ${telemetry.trt > 2000 ? 'text-amber-500' : 'text-white/50 group-hover:text-white'}`}>
+                  TRT (LATENCY): {telemetry.trt}ms
+                </span>
+             </button>
+
+             {/* Component Breakdown Popover */}
+             {showBreakdown && (
+               <motion.div 
+                 initial={{ opacity: 0, y: 10 }}
+                 animate={{ opacity: 1, y: 0 }}
+                 className="absolute bottom-full right-0 mb-4 w-64 bg-black border border-white/10 shadow-2xl p-4 z-50 pointer-events-none"
+               >
+                 <span className="text-[9px] font-black uppercase text-white/30 block mb-3 border-b border-white/10 pb-2 tracking-[0.2em]">
+                   Telemetry Breakdown
+                 </span>
+                 <div className="space-y-3">
+                   <div className="flex justify-between items-center">
+                     <span className="text-[10px] font-mono text-white/70">STT/Translation</span>
+                     <span className="text-[10px] font-bold text-white">{telemetry.latencyBreakdown.stt}ms</span>
+                   </div>
+                   <div className="flex justify-between items-center">
+                     <span className="text-[10px] font-mono text-white/70">Graph Query</span>
+                     <span className="text-[10px] font-bold text-emerald-400">{telemetry.latencyBreakdown.graph}ms</span>
+                   </div>
+                   <div className="flex justify-between items-center">
+                     <span className="text-[10px] font-mono text-white/70">AI Reasoning</span>
+                     <span className="text-[10px] font-bold text-primary-container">{telemetry.latencyBreakdown.ai}ms</span>
+                   </div>
+                 </div>
+               </motion.div>
+             )}
            </div>
            <span className="telemetry-label !text-[9px] opacity-50 uppercase tracking-[0.3em]">ENCRYPTION: AES_256_SOVEREIGN</span>
         </div>
       </div>
+      <SystemReportGenerator />
     </footer>
   );
 }

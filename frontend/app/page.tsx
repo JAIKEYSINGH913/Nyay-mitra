@@ -38,9 +38,13 @@ export default function HomePage() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const user = await account.get();
+        // Set a 3-second timeout for the auth check to prevent loading hangs
+        const userPromise = account.get();
+        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), 3000));
+        const user = await Promise.race([userPromise, timeoutPromise]);
         setIsLoggedIn(!!user);
-      } catch {
+      } catch (err) {
+        console.warn("Auth check failed or timed out:", err);
         setIsLoggedIn(false);
       }
     };
@@ -70,8 +74,18 @@ export default function HomePage() {
             Engineered for the IPC-BNS transition. <br /> A monolithic interface for the modern jurist.
           </motion.p>
           <motion.div style={{ opacity: useTransform(smoothProgress, [0, 0.08], [1, 0]) }} className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="btn-industrial bg-primary-container text-white px-8 py-3 group text-sm md:text-base">INITIALIZE_HUB <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" /></button>
-            <button className="btn-industrial-outline border-primary-container/30 px-8 py-3 hover:bg-primary-container/5 text-sm md:text-base">TELEMETRY_DASHBOARD</button>
+            <button 
+              onClick={() => window.location.href = "/nyay-vani"}
+              className="btn-industrial bg-primary-container text-white px-8 py-3 group text-sm md:text-base"
+            >
+              INITIALIZE_VOICE_HUB <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </button>
+            <button 
+              onClick={() => setAuthModalOpen(true)}
+              className="btn-industrial-outline border-primary-container/30 px-8 py-3 hover:bg-primary-container/5 text-sm md:text-base flex items-center gap-2"
+            >
+              <Terminal className="w-4 h-4" /> NEURAL_PULSE_INGESTION
+            </button>
           </motion.div>
         </div>
       </section>
@@ -128,7 +142,7 @@ export default function HomePage() {
   );
 }
 
-function BentoCard({ title, tag, desc, icon, className, delay, children }) {
+function BentoCard({ title, tag, desc, icon, className, delay, children }: { title: any, tag: any, desc: any, icon: any, className?: any, delay?: any, children?: any }) {
   const ref = useRef(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "center center"] });
   const y = useTransform(scrollYProgress, [0, 1], [100, 0]);
@@ -180,7 +194,7 @@ function OperationsSection() {
   );
 }
 
-function OperationCard({ img, title, subtitle }) {
+function OperationCard({ img, title, subtitle }: any) {
   return (
     <motion.div className="relative shrink-0 w-[85vw] md:w-[40vw] aspect-[16/9] overflow-hidden group border border-border-color/10 shadow-xl rounded-none">
       <motion.img src={img} whileHover={{ scale: 1.05 }} transition={{ duration: 1 }} className="absolute inset-0 w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-1000" />
@@ -221,7 +235,7 @@ function TelemetrySection() {
   );
 }
 
-function SinusoidalStatCard({ label, value, trend, reason, proof, progress, index, isActive, onHover, onLeave }) {
+function SinusoidalStatCard({ label, value, trend, reason, proof, progress, index, isActive, onHover, onLeave }: any) {
   const x = useTransform(progress, [0, 0.5, 1], [index % 2 === 0 ? "15%" : "-15%", "0%", index % 2 === 0 ? "-15%" : "15%"]);
   const opacity = useTransform(progress, [0, 0.2, 0.8, 1], [0.4, 1, 1, 0.4]);
   return (

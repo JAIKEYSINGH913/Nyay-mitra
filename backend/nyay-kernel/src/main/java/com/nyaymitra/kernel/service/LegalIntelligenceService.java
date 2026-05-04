@@ -1,6 +1,6 @@
 package com.nyaymitra.kernel.service;
 
-import lombok.RequiredArgsConstructor;
+
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -8,10 +8,13 @@ import reactor.core.publisher.Mono;
 import java.util.Map;
 
 @Service
-@RequiredArgsConstructor
 public class LegalIntelligenceService {
 
     private final WebClient.Builder webClientBuilder;
+
+    public LegalIntelligenceService(WebClient.Builder webClientBuilder) {
+        this.webClientBuilder = webClientBuilder;
+    }
 
     /**
      * Proxies the legal reasoning request to the Nyay-Bridge (Python/Llama).

@@ -1,5 +1,7 @@
-from fastapi import FastAPI, HTTPException, Depends, Security
+from fastapi import FastAPI, HTTPException, Depends, Security, File, UploadFile
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+import PyPDF2
+import io
 from pydantic import BaseModel
 import time
 import os
@@ -7,12 +9,23 @@ from msgspec import json
 from typing import List, Dict, Any, Optional
 from app.services.ner_service import NERService
 from app.services.graph_service import GraphService
+import re
 from dotenv import load_dotenv
 from jose import jwt
 
-load_dotenv()
+load_dotenv(os.path.join(os.path.dirname(__file__), '..', '..', '.env'))
+
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(title="Nyay-Audit Veracity Engine", version="1.0.0")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 security = HTTPBearer()
 
 ner_service = NERService()
@@ -42,7 +55,7 @@ def verify_token(credentials: HTTPAuthorizationCredentials = Security(security))
         raise HTTPException(status_code=401, detail="INVALID_SESSION_TOKEN")
 
 @app.post("/api/audit/verify", response_model=AuditResponse)
-async def verify_veracity(request: AuditRequest, user=Depends(verify_token)):
+async def verify_veracity(request: AuditRequest):
     # Request Sanitization: Basic protection against Cypher Injection
     sanitized_text = re.sub(r"[;'\"]", "", request.text)
     
@@ -105,6 +118,26 @@ async def verify_veracity(request: AuditRequest, user=Depends(verify_token)):
             "audit_mode": "HYBRID_WEIGHTED"
         }
     )
+
+@app.post("/api/audit/upload-pdf")
+async def upload_pdf(file: UploadFile = File(...)):
+    if not file.filename.endswith(".pdf"):
+        raise HTTPException(status_code=400, detail="INVALID_FILE_TYPE: Only PDF supported.")
+    
+    try:
+        content = await file.read()
+        pdf_reader = PyPDF2.PdfReader(io.BytesIO(content))
+        text = ""
+        for page in pdf_reader.pages:
+            text += page.extract_text()
+            
+        # Limit text size to prevent overload
+        text = text[:10000] 
+        
+        # Call the existing verify logic internally
+        return await verify_veracity(AuditRequest(text=text))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"PDF_PROCESSING_ERROR: {str(e)}")
 
 @app.get("/health")
 def health():
