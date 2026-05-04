@@ -18,7 +18,7 @@ export default function DynamicBackground({ scrollProgress }: { scrollProgress?:
     canvas.height = height;
 
     let particles: any[] = [];
-    const particleCount = 200;
+    const particleCount = 2000;
 
     class Particle {
       x!: number;

@@ -5,8 +5,8 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls, Sphere, MeshDistortMaterial, Float, Text, Line, Stars } from "@react-three/drei";
 import * as THREE from "three";
 
-const NODE_COUNT = 12; 
-const COLORS = ["#E01E22", "#0043eb", "#ffffff", "#3b82f6", "#ef4444"];
+const NODE_COUNT = 60; 
+const COLORS = ["#E01E22", "#0043eb", "#ffffff", "#00E0FF", "#FFD700"];
 
 interface Node {
   id: number;
@@ -53,9 +53,9 @@ function GraphContent() {
   const edges: Edge[] = useMemo(() => {
     const temp: Edge[] = [];
     for (let i = 0; i < nodes.length; i++) {
-      const connectionCount = 2;
+      const connectionCount = 3;
       for (let j = 0; j < connectionCount; j++) {
-        const targetIndex = (i + Math.floor(Math.random() * 5) + 1) % nodes.length;
+        const targetIndex = (i + Math.floor(Math.random() * 10) + 1) % nodes.length;
         temp.push({
           start: nodes[i].position,
           end: nodes[targetIndex].position,
