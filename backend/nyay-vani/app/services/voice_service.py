@@ -17,11 +17,11 @@ class VoiceService:
         self.sarvam_key = os.getenv("SARVAM_API_KEY")
 
     async def transcribe(self, audio_content: str, lang: str) -> Dict[str, Any]:
-        """Transcribe audio. Tries Sarvam first (good for Indian languages), then falls back."""
-        import httpx
+        """Transcribe audio. Tries: Sarvam → Gemini (Multimodal) → Fallback."""
         import base64
+        import httpx
 
-        # Try Sarvam first for Indian language ASR
+        # 1. Try Sarvam (Optimized for Indian Accents)
         if self.sarvam_key:
             try:
                 audio_bytes = base64.b64decode(audio_content)
@@ -34,16 +34,46 @@ class VoiceService:
                     response = await client.post(url, headers=headers, files=files, data=data, timeout=30.0)
                     response.raise_for_status()
                     result = response.json()
+                    if result.get("transcript"):
+                        return {
+                            "transcription": result.get("transcript", ""),
+                            "language": lang,
+                            "accuracy": result.get("confidence", 0.90),
+                            "engine": "sarvam"
+                        }
+            except Exception as e:
+                logger.warning(f"Sarvam STT failed: {e}")
+
+        # 2. Try Gemini Multimodal STT (Powerful fallback)
+        if self.api_key:
+            try:
+                import google.generativeai as genai
+                genai.configure(api_key=self.api_key)
+                model = genai.GenerativeModel("gemini-1.5-flash")
+                
+                # Convert base64 to bytes and then to GenAI part
+                audio_bytes = base64.b64decode(audio_content)
+                
+                # Use a broader mime_type or try to infer it. 
+                # MediaRecorder usually sends webm.
+                prompt = f"Transcribe this audio accurately. The language is {lang}. Respond ONLY with the transcription text. If the audio is silent, respond with [SILENCE]."
+                response = model.generate_content([
+                    prompt,
+                    {"mime_type": "audio/webm", "data": audio_bytes}
+                ])
+                
+                transcription = response.text.strip()
+                if transcription and "[SILENCE]" not in transcription:
                     return {
-                        "transcription": result.get("transcript", ""),
+                        "transcription": transcription,
                         "language": lang,
-                        "accuracy": result.get("confidence", 0.90),
-                        "engine": "sarvam"
+                        "accuracy": 0.85,
+                        "engine": "gemini-neural"
                     }
             except Exception as e:
-                logger.warning(f"Sarvam STT failed, will use fallback: {e}")
-        
-        # Fallback: return a message indicating STT needs client-side processing
+                logger.error(f"Gemini STT fallback failed: {e}")
+
+        # 3. Ultimate Fallback
         return {
             "transcription": "[Server STT unavailable — please use Text-to-Vani mode or enable browser speech recognition]",
             "language": lang,
@@ -95,21 +125,31 @@ Respond ONLY with the translated text, nothing else."""
         except Exception as e:
             logger.warning(f"Ollama translation failed: {e}")
         
-        # Try Gemini
+        # Try Gemini (Reliable Fallback)
         if self.api_key:
             try:
                 import google.generativeai as genai
                 genai.configure(api_key=self.api_key)
-                model = genai.GenerativeModel("gemini-2.0-flash")
-                response = model.generate_content(prompt)
+                model = genai.GenerativeModel("gemini-1.5-flash")
+                
+                # Disable safety filters for legal translation (prevents blocking criminal queries)
+                safety_settings = [
+                    {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
+                    {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
+                    {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
+                    {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"},
+                ]
+                
+                response = model.generate_content(prompt, safety_settings=safety_settings)
                 translated = response.text.strip().strip('"')
-                return {
-                    "translated_text": translated,
-                    "source_lang": source_lang,
-                    "target_lang": target_lang,
-                    "confidence": 0.95,
-                    "engine": "gemini"
-                }
+                if translated:
+                    return {
+                        "translated_text": translated,
+                        "source_lang": source_lang,
+                        "target_lang": target_lang,
+                        "confidence": 0.95,
+                        "engine": "gemini"
+                    }
             except Exception as e:
                 logger.error(f"Gemini translation failed: {e}")
         
@@ -145,23 +185,53 @@ Respond ONLY with the translated text, nothing else."""
         }
 
     async def query_legal(self, text: str, lang: str) -> Dict[str, Any]:
-        """Process a typed legal query: translate if needed, then return structured output."""
-        # If the text is already in English, return directly
-        if lang in ("en", "en-IN"):
-            return {
-                "original_text": text,
-                "translated_text": text,
-                "language": "en",
-                "intent": "legal_query"
-            }
+        """Perform bidirectional legal processing and IPC/BNS mapping."""
+        # 1. Translate to English if needed
+        english_query = text
+        if lang not in ("en", "en-IN"):
+            trans_res = await self.translate(text, lang, "en")
+            english_query = trans_res.get("translated_text", text)
         
-        # Otherwise, translate to English
-        translation = await self.translate(text, lang, "en")
+        # 2. Kernel Process (Legal Grounding mapping IPC to BNS)
+        english_answer = "Legal grounding unavailable."
+        if self.api_key:
+            try:
+                import google.generativeai as genai
+                genai.configure(api_key=self.api_key)
+                model = genai.GenerativeModel("gemini-1.5-flash")
+                
+                safety_settings = [
+                    {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
+                    {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
+                    {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
+                    {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"},
+                ]
+                
+                kernel_prompt = f"""
+                You are the Nyay-Mitra Judicial Kernel. A user has provided the following query:
+                "{english_query}"
+                
+                Provide a short, verified explanation (2-3 sentences max) mapping this query to the relevant legal sections, specifically mapping legacy IPC sections to modern BNS (Bharatiya Nyaya Sanhita) sections.
+                For example, if it's about cheating, mention IPC 420 and BNS 318.
+                Respond ONLY with the explanation.
+                """
+                response = model.generate_content(kernel_prompt, safety_settings=safety_settings)
+                english_answer = response.text.strip().strip('"')
+            except Exception as e:
+                logger.error(f"Kernel grounding failed: {e}")
+                english_answer = f"Error during legal grounding: {str(e)}"
         
+        # 3. Translate answer back to native language
+        native_answer = english_answer
+        if lang not in ("en", "en-IN") and english_answer != "Legal grounding unavailable.":
+            trans_back_res = await self.translate(english_answer, "en", lang)
+            native_answer = trans_back_res.get("translated_text", english_answer)
+
         return {
-            "original_text": text,
-            "translated_text": translation.get("translated_text", text),
+            "original_query": text,
+            "english_query": english_query,
+            "english_answer": english_answer,
+            "native_answer": native_answer,
             "language": lang,
-            "intent": "legal_query",
-            "confidence": translation.get("confidence", 0.0)
+            "intent": "legal_grounding"
         }

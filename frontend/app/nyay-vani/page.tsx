@@ -54,6 +54,11 @@ export default function NyayVaniPage() {
   // Transcripts
   const [inputTranscript, setInputTranscript] = useState("");
   const [neuralTranslation, setNeuralTranslation] = useState("");
+  const [telemetry, setTelemetry] = useState({
+    accuracy: "---",
+    rtt: "---",
+    engine: "---"
+  });
 
   // Simulated Web Audio API data for waveform
   const [audioData, setAudioData] = useState<number[]>(new Array(30).fill(10));
@@ -83,14 +88,15 @@ export default function NyayVaniPage() {
       source.connect(analyser);
       
       // 1. Setup MediaRecorder for backend archival
-      const mediaRecorder = new MediaRecorder(stream);
+      const mimeType = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/ogg';
+      const mediaRecorder = new MediaRecorder(stream, { mimeType });
       mediaRecorderRef.current = mediaRecorder;
       audioChunksRef.current = [];
       mediaRecorder.ondataavailable = (event) => {
         if (event.data.size > 0) audioChunksRef.current.push(event.data);
       };
       mediaRecorder.onstop = async () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
+        const audioBlob = new Blob(audioChunksRef.current, { type: mimeType });
         await processAudio(audioBlob);
       };
       mediaRecorder.start();
@@ -100,19 +106,19 @@ export default function NyayVaniPage() {
       if (SpeechRecognition) {
         const recognition = new SpeechRecognition();
         recognition.lang = selectedLang === "hi" ? "hi-IN" : selectedLang === "ta" ? "ta-IN" : "te-IN";
-        recognition.continuous = true;
+        recognition.continuous = false; // Changed to false for better one-shot accuracy
         recognition.interimResults = true;
 
         recognition.onresult = (event: any) => {
-          const transcript = Array.from(event.results)
-            .map((result: any) => result[0])
-            .map((result: any) => result.transcript)
-            .join("");
-          setInputTranscript(transcript);
+          let currentTranscript = "";
+          for (let i = 0; i < event.results.length; i++) {
+            currentTranscript += event.results[i][0].transcript;
+          }
+          if (currentTranscript) setInputTranscript(currentTranscript);
         };
-
-        recognition.onerror = (event: any) => {
-          console.error("Speech Recognition Error:", event.error);
+        
+        recognition.onend = () => {
+           // Graceful stop handled by stopActualRecording
         };
 
         recognition.start();
@@ -137,8 +143,16 @@ export default function NyayVaniPage() {
       updateWaveform();
       setIsRecording(true);
       setHasRecorded(false);
-      setInputTranscript("सुन रहा हूँ... (Listening...)");
-      setNeuralTranslation("Establishing neural translation bridge...");
+      
+      // CRITICAL: Reset transcripts for new session
+      setInputTranscript("");
+      setNeuralTranslation("");
+      setTelemetry({ accuracy: "---", rtt: "---", engine: "---" });
+      
+      // Delay placeholder to ensure UI re-render
+      setTimeout(() => {
+        setInputTranscript("सुन रहा हूँ... (Listening...)");
+      }, 100);
       
     } catch (err) {
       console.warn("[NYAY-VANI_DEBUG] Microphone access failed:", err);
@@ -148,52 +162,107 @@ export default function NyayVaniPage() {
 
   const processAudio = async (blob: Blob) => {
     setIsProcessing(true);
+    setNeuralTranslation("Analyzing neural signal...");
+    
     try {
-      // 1. If we already have a transcript from the Browser Web Speech API, use it!
-      // This makes the system "Smart" and ultra-fast.
       let transcription = inputTranscript;
       
-      // 2. Only call backend STT if browser transcript is empty or placeholder
-      if (!transcription || transcription === "सुन रहा हूँ... (Listening...)") {
+      // 1. Backend STT Fallback
+      if (!transcription || transcription === "" || transcription.includes("Listening")) {
         const reader = new FileReader();
         reader.readAsDataURL(blob);
         await new Promise((resolve) => (reader.onloadend = resolve));
         const base64Audio = (reader.result as string).split(',')[1];
         
-        const sttRes = await fetch("http://127.0.0.1:8003/api/vani/stt", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            audio_content: base64Audio,
-            language_code: selectedLang
-          })
-        });
-        const sttData = await sttRes.json();
-        transcription = sttData.output?.transcription || "";
-        setInputTranscript(transcription);
+        try {
+          const sttRes = await fetch("http://127.0.0.1:8003/api/vani/stt", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              audio_content: base64Audio,
+              language_code: selectedLang
+            })
+          });
+          const sttData = await sttRes.json();
+          const serverTranscription = sttData.output?.transcription || "";
+          
+          // Only use server transcript if it's NOT the error message
+          if (serverTranscription && !serverTranscription.includes("STT unavailable")) {
+            transcription = serverTranscription;
+            setInputTranscript(transcription);
+            setTelemetry(prev => ({
+              ...prev,
+              accuracy: (sttData.telemetry?.stt_accuracy * 100).toFixed(1) + "%",
+              engine: sttData.telemetry?.stt_engine || "gemini-neural"
+            }));
+          }
+        } catch (e) {
+          console.error("Backend STT fetch failed:", e);
+        }
       }
 
-      // 3. Call Translation API to Legal English (Always needed)
-      if (transcription && !transcription.includes("[Server STT unavailable]")) {
-        const transRes = await fetch("http://127.0.0.1:8003/api/vani/translate", {
+      // 2. Mandatory Neural Translation
+      // Filter out any leftover error messages or placeholders
+      const cleanTranscript = transcription.replace("सुन रहा हूँ... (Listening...)", "").trim();
+
+      if (cleanTranscript && !cleanTranscript.includes("STT unavailable") && cleanTranscript.length > 1) {
+        setNeuralTranslation("Analyzing neural signal...");
+        const queryRes = await fetch("http://127.0.0.1:8003/api/vani/query", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            text: transcription,
-            source_lang: selectedLang,
-            target_lang: "en"
+            text: cleanTranscript,
+            language: selectedLang
           })
         });
-        const transData = await transRes.json();
-        setNeuralTranslation(transData.output?.translated_text || "Translation failed.");
+        const queryData = await queryRes.json();
+        const englishAnswer = queryData.output?.english_answer || "Grounding failed.";
+        const nativeAnswer = queryData.output?.native_answer || cleanTranscript;
+        
+        // Show English Kernel Answer in the UI
+        setNeuralTranslation(englishAnswer);
+        setTelemetry(prev => ({
+          ...prev,
+          rtt: queryData.telemetry?.processing_time_ms + "ms",
+          engine: "kernel_grounding"
+        }));
         setHasRecorded(true);
+
+        // 3. Bidirectional Audio Output (Vani Response in Native Language)
+        if (window.speechSynthesis) {
+          const utterance = new SpeechSynthesisUtterance(nativeAnswer);
+          utterance.lang = selectedLang === "hi" ? "hi-IN" : selectedLang === "ta" ? "ta-IN" : "te-IN";
+          utterance.rate = playbackSpeed;
+          // Select voice based on voiceType
+          const voices = window.speechSynthesis.getVoices();
+          const targetVoice = voices.find(v => 
+            (v.lang.includes(selectedLang) || v.lang.includes('IN')) && 
+            (voiceType === "Male" ? v.name.includes("Male") || v.name.includes("David") : 
+             voiceType === "Female" ? v.name.includes("Female") || v.name.includes("Zira") : true)
+          );
+          if (targetVoice) utterance.voice = targetVoice;
+          window.speechSynthesis.speak(utterance);
+        }
+      } else {
+        setNeuralTranslation("No neural signal detected. Please check microphone or try Text-to-Vani.");
+        setHasRecorded(true); 
       }
     } catch (err) {
       console.error("[NYAY-VANI_ERROR] Processing failed:", err);
-      toast.error("Neural Bridge Timeout. Ensure Vani Service [8003] is live.");
+      toast.error("Neural Bridge Offline. Using direct transcript.");
+      setNeuralTranslation(inputTranscript || "Processing failed.");
+      setHasRecorded(true);
     } finally {
       setIsProcessing(false);
     }
+  };
+
+  const sendToBridge = () => {
+    setNeuralState({
+      activeQuery: neuralTranslation
+    });
+    toast.success("Context established. Pushing to Nyay-Bridge...");
+    router.push("/nyay-bridge");
   };
 
   const stopActualRecording = () => {
@@ -241,7 +310,6 @@ export default function NyayVaniPage() {
     setNeuralTranslation("Translating...");
 
     try {
-      // Call the Vani text query endpoint
       const res = await fetch("http://127.0.0.1:8003/api/vani/query", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -251,54 +319,53 @@ export default function NyayVaniPage() {
         })
       });
       const data = await res.json();
-      setNeuralTranslation(data.output?.translated_text || fallbackText);
+      const englishAnswer = data.output?.english_answer || "Grounding failed.";
+      const nativeAnswer = data.output?.native_answer || fallbackText;
+      
+      setNeuralTranslation(englishAnswer);
+      setTelemetry({
+        accuracy: "100%",
+        rtt: data.telemetry?.processing_time_ms + "ms",
+        engine: "text_query_grounding"
+      });
       setHasRecorded(true);
+
+      // Bidirectional Audio Output for Text Mode
+      if (window.speechSynthesis) {
+        const utterance = new SpeechSynthesisUtterance(nativeAnswer);
+        utterance.lang = selectedLang === "hi" ? "hi-IN" : selectedLang === "ta" ? "ta-IN" : "te-IN";
+        utterance.rate = playbackSpeed;
+        const voices = window.speechSynthesis.getVoices();
+        const targetVoice = voices.find(v => 
+          (v.lang.includes(selectedLang) || v.lang.includes('IN')) && 
+          (voiceType === "Male" ? v.name.includes("Male") || v.name.includes("David") : 
+           voiceType === "Female" ? v.name.includes("Female") || v.name.includes("Zira") : true)
+        );
+        if (targetVoice) utterance.voice = targetVoice;
+        window.speechSynthesis.speak(utterance);
+      }
     } catch (err) {
       console.error("[NYAY-VANI_ERROR] Query failed:", err);
-      // If the API is down, try the translate endpoint directly
-      try {
-        const transRes = await fetch("http://127.0.0.1:8003/api/vani/translate", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            text: fallbackText,
-            source_lang: selectedLang,
-            target_lang: "en"
-          })
-        });
-        const transData = await transRes.json();
-        setNeuralTranslation(transData.output?.translated_text || fallbackText);
-        setHasRecorded(true);
-      } catch (err2) {
-        toast.error("Vani service offline. Ensure port 8003 is running.");
-        setNeuralTranslation(fallbackText);
-        setHasRecorded(true);
-      }
+      setNeuralTranslation(fallbackText);
+      setHasRecorded(true);
     } finally {
       setIsProcessing(false);
     }
   };
 
-  const sendToBridge = () => {
-    // Dispatch to global store
-    setNeuralState({
-      activeQuery: neuralTranslation
-    });
-    toast.success("Context established. Pushing to Nyay-Bridge...");
-    router.push("/nyay-bridge");
-  };
+
 
   return (
     <div className="min-h-screen bg-black text-white font-space pt-24 pb-20 px-6 md:px-10 overflow-x-hidden relative selection:bg-primary-container selection:text-black">
       
       {/* 1. HUGE FADED TITLE */}
-      <div className="absolute top-24 left-1/2 -translate-x-1/2 w-full text-center pointer-events-none z-0">
-        <h1 className="text-[14vw] font-black tracking-tighter uppercase opacity-[0.03] leading-none select-none">
+      <div className="absolute top-10 left-1/2 -translate-x-1/2 w-full text-center pointer-events-none z-0">
+        <h1 className="text-[14vw] font-black tracking-tighter uppercase opacity-[0.02] leading-none select-none">
           NYAY-VANI
         </h1>
       </div>
 
-      <div className="max-w-[1400px] mx-auto relative z-10 pt-10">
+      <div className="max-w-[1400px] mx-auto relative z-10 pt-48">
         
         {/* HEADER & TELEMETRY */}
         <div className="flex flex-col xl:flex-row justify-between items-end gap-10 mb-10 border-b border-white/5 pb-10">
@@ -330,14 +397,14 @@ export default function NyayVaniPage() {
               <div className="flex items-center gap-2">
                 <ShieldCheck className="w-4 h-4 text-emerald-500" />
                 <span className="text-[10px] font-black uppercase tracking-widest text-white/50">
-                  STT_CONFIDENCE: <span className="text-white">{hasRecorded ? "98.2%" : "---"}</span>
+                  STT_CONFIDENCE: <span className="text-white">{telemetry.accuracy}</span>
                 </span>
               </div>
               <div className="h-4 w-[1px] bg-white/20" />
               <div className="flex items-center gap-2">
                 <Activity className="w-4 h-4 text-secondary-container" />
                 <span className="text-[10px] font-black uppercase tracking-widest text-white/50">
-                  TRANSLATION_RTT: <span className="text-white">{hasRecorded ? "120ms" : "---"}</span>
+                  TRANSLATION_RTT: <span className="text-white">{telemetry.rtt}</span>
                 </span>
               </div>
             </div>
@@ -346,7 +413,7 @@ export default function NyayVaniPage() {
             <div className="flex gap-4">
               <button 
                 onClick={() => setTextMode(!textMode)}
-                className={`flex-1 p-3 text-[10px] font-black uppercase tracking-widest border transition-all flex items-center justify-center gap-2 ${textMode ? "bg-primary-container text-black border-primary-container" : "bg-white/5 text-white/40 border-white/10 hover:border-white/30"}`}
+                className={`flex-1 p-3 text-[10px] font-black uppercase tracking-widest border transition-all flex items-center justify-center gap-2 ${textMode ? "bg-primary-container text-white border-primary-container shadow-[0_0_15px_rgba(224,30,34,0.2)]" : "bg-white/5 text-white/40 border-white/10 hover:border-white/30"}`}
               >
                 <Keyboard className="w-3 h-3" /> Text-to-Vani
               </button>
@@ -366,10 +433,10 @@ export default function NyayVaniPage() {
                      <button 
                        key={lang.code}
                        onClick={() => setSelectedLang(lang.code)}
-                       className={`w-full p-4 border flex justify-between items-center transition-all ${selectedLang === lang.code ? 'border-primary-container bg-primary-container/10 text-white' : 'border-white/5 bg-black text-white/40 hover:border-white/20'}`}
+                       className={`w-full p-4 border flex justify-between items-center transition-all ${selectedLang === lang.code ? 'border-primary-container bg-primary-container text-white shadow-[0_0_15px_rgba(224,30,34,0.2)]' : 'border-white/5 bg-black text-white/40 hover:border-white/20'}`}
                      >
                         <span className="text-[11px] font-black uppercase">{lang.name}</span>
-                        <span className="text-[11px] opacity-50">{lang.label}</span>
+                        <span className="text-[11px] opacity-70">{lang.label}</span>
                      </button>
                    ))}
                 </div>
@@ -388,7 +455,7 @@ export default function NyayVaniPage() {
                             <button 
                               key={type}
                               onClick={() => setVoiceType(type)}
-                              className={`py-3 text-[9px] font-black uppercase tracking-widest border transition-all ${voiceType === type ? 'border-primary-container bg-primary-container/10 text-white' : 'border-white/5 bg-black text-white/30'}`}
+                              className={`py-3 text-[9px] font-black uppercase tracking-widest border transition-all ${voiceType === type ? 'border-primary-container bg-primary-container text-white shadow-[0_0_10px_rgba(224,30,34,0.15)]' : 'border-white/5 bg-black text-white/30'}`}
                             >
                                {type}
                             </button>
@@ -495,7 +562,7 @@ export default function NyayVaniPage() {
                            />
                            <div className="flex justify-between items-center">
                               <span className="text-[10px] text-white/30 uppercase tracking-widest font-mono">Bypassing Speech API...</span>
-                              <button type="submit" className="px-8 py-4 bg-primary-container text-black font-black uppercase tracking-widest text-[11px] flex items-center gap-2 hover:bg-cyan-400">
+                              <button type="submit" className="px-8 py-4 bg-primary-container text-white font-black uppercase tracking-widest text-[11px] flex items-center gap-2">
                                  Process <ArrowRight className="w-4 h-4" />
                               </button>
                            </div>
@@ -550,19 +617,24 @@ export default function NyayVaniPage() {
 
                {/* INTEGRATION BUTTON */}
                <AnimatePresence>
-                  {hasRecorded && (
+                  {(hasRecorded || neuralTranslation.length > 20) && !isRecording && (
                      <motion.div 
                         initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-                        className="border-t border-white/10 bg-primary-container/5 p-6 flex justify-between items-center"
+                        className="border-t border-white/10 bg-primary-container/5 p-6 flex flex-col md:flex-row justify-between items-center gap-4"
                      >
-                        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40">
-                           API Status: <span className="text-emerald-500">Nominal</span>
-                        </span>
+                        <div className="flex flex-col gap-1">
+                          <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40">
+                             Context Health: <span className="text-emerald-500">Nominal</span>
+                          </span>
+                          <span className="text-[8px] font-bold uppercase tracking-widest text-white/20">
+                            Neural Vector Ready for Bridge Transition
+                          </span>
+                        </div>
                         <button 
                            onClick={sendToBridge}
-                           className="px-8 py-4 bg-primary-container text-black font-black uppercase tracking-widest text-[11px] flex items-center gap-3 hover:bg-cyan-400 transition-colors shadow-[0_0_20px_rgba(0,243,255,0.2)]"
+                           className="w-full md:w-auto px-8 py-4 bg-primary-container text-white font-black uppercase tracking-widest text-[11px] flex items-center justify-center gap-3 hover:bg-red-700 transition-colors shadow-[0_0_25px_rgba(224,30,34,0.3)]"
                         >
-                           <Workflow className="w-4 h-4" /> 02_NYAY_BRIDGE_TRANSITION
+                          <Workflow className="w-4 h-4" /> CONTINUE TO NYAY-BRIDGE [STEP_02]
                         </button>
                      </motion.div>
                   )}
@@ -573,7 +645,21 @@ export default function NyayVaniPage() {
           </div>
 
         </div>
-      </div>
+       </div>
+       
+       {/* SPACER FOR CONTENT END */}
+       <div className="h-32" />
+
+       {/* SIGNATURE (Same as Landing Page) */}
+       <div className="max-w-7xl mx-auto mb-10 px-10">
+          <div className="font-space text-5xl md:text-[10rem] font-black tracking-tighter leading-none opacity-5 hover:opacity-10 transition-opacity select-none text-white">
+             NYAY-MITRA
+          </div>
+          <div className="font-space text-[10px] tracking-widest opacity-30 uppercase font-bold mt-4 text-white">
+             © 2026 Sovereign_Judicial_Engine
+          </div>
+       </div>
+
     </div>
   );
 }
