@@ -4,5 +4,6 @@ python-dotenv
 httpx
 pydantic
 
-cryptography
-aiohttp
+google-generativeai
+sentence-transformers
+numpy

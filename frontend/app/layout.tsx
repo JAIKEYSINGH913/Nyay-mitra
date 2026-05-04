@@ -10,13 +10,47 @@ import LoadingScreen from "@/components/LoadingScreen";
 import CookieConsent from "@/components/CookieConsent";
 
 export const metadata: Metadata = {
-  title: "Nyay-Mitra – Legal AI Ecosystem",
-  description: "A glass-box deterministic Legal AI platform bridging IPC to BNS with Knowledge Graph-powered intelligence.",
-  keywords: ["Legal AI", "Nyay-Mitra", "BNS", "IPC", "GraphRAG", "Neo4j", "Indian Law"],
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://nyay-mitra.tech"),
+  title: {
+    default: "Nyay-Mitra | Sovereign Judicial Engine",
+    template: "%s | Nyay-Mitra"
+  },
+  description: "A glass-box deterministic Legal AI platform bridging legacy IPC to BNS with real-time Knowledge Graph-powered intelligence. Experience multilingual voice-to-legal capabilities.",
+  keywords: ["Legal AI", "Nyay-Mitra", "BNS", "IPC", "GraphRAG", "Neo4j", "Indian Law", "Legal Engine", "Sovereign AI"],
+  authors: [{ name: "Nyay-Mitra Team" }],
+  creator: "Sovereign Judicial Engine",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
   openGraph: {
-    title: "Nyay-Mitra – Legal AI Ecosystem",
-    description: "Knowledge Graph-powered legal intelligence for modern India.",
+    title: "Nyay-Mitra | Sovereign Judicial Engine",
+    description: "Knowledge Graph-powered legal intelligence for modern India. Bridge the gap between languages and the law.",
+    url: "/",
+    siteName: "Nyay-Mitra",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Nyay-Mitra Judicial Engine",
+      },
+    ],
+    locale: "en_IN",
     type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Nyay-Mitra | Sovereign Judicial Engine",
+    description: "Knowledge Graph-powered legal intelligence for modern India.",
+    images: ["/og-image.png"],
   },
 };
 
