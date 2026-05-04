@@ -8,9 +8,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class NyayKernelApplication {
 
 	public static void main(String[] args) {
-		// Load .env from the backend root directory (parent of nyay-kernel)
+		// Load .env from the project root directory
 		Dotenv dotenv = Dotenv.configure()
-				.directory("..")
+				.directory("../../")
 				.ignoreIfMissing()
 				.load();
 		
