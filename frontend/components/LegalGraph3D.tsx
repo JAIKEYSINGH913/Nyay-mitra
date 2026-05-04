@@ -5,7 +5,7 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls, Sphere, MeshDistortMaterial, Float, Text, Line, Stars } from "@react-three/drei";
 import * as THREE from "three";
 
-const NODE_COUNT = 60; 
+const NODE_COUNT = 25; 
 const COLORS = ["#E01E22", "#0043eb", "#ffffff", "#00E0FF", "#FFD700"];
 
 interface Node {
@@ -13,6 +13,7 @@ interface Node {
   position: [number, number, number];
   color: string;
   label: string;
+  size: number;
 }
 
 interface Edge {
@@ -33,18 +34,29 @@ function GraphContent() {
       "NEURAL_MAP", "DATA_SILO", "VOICE_VANI", "GRAPH_DB", "BRIDGE"
     ];
     
-    for (let i = 0; i < NODE_COUNT; i++) {
-      const angle = (i / NODE_COUNT) * Math.PI * 2;
-      const radius = 7 + Math.random() * 3;
+    // 1. Central "Sun" Node
+    temp.push({
+      id: 0,
+      position: [0, 0, 0],
+      color: "#FFD700", // Sun Gold
+      label: "NYAY_KERNEL_CORE",
+      size: 1.8
+    });
+
+    // 2. Orbiting "Planet" Nodes (Scattered)
+    for (let i = 1; i < NODE_COUNT; i++) {
+      const radius = 4 + Math.random() * 8; // Random radius between 4 and 12
+      const angle = Math.random() * Math.PI * 2; // Random angle
       temp.push({
         id: i,
         position: [
-          Math.cos(angle) * radius,
-          (Math.random() - 0.5) * 10,
-          Math.sin(angle) * radius,
+          Math.cos(angle) * radius + (Math.random() - 0.5) * 4,
+          (Math.random() - 0.5) * 16, // High vertical scattering
+          Math.sin(angle) * radius + (Math.random() - 0.5) * 4,
         ],
         color: COLORS[i % COLORS.length],
-        label: labels[i % labels.length] || `NODE_${i}`,
+        label: labels[i % labels.length] || `PROTOCOL_${i}`,
+        size: 0.4 + Math.random() * 0.8
       });
     }
     return temp;
@@ -52,13 +64,26 @@ function GraphContent() {
 
   const edges: Edge[] = useMemo(() => {
     const temp: Edge[] = [];
+    // Distance-based connections for a "Neural Mesh" feel
     for (let i = 0; i < nodes.length; i++) {
-      const connectionCount = 3;
-      for (let j = 0; j < connectionCount; j++) {
-        const targetIndex = (i + Math.floor(Math.random() * 10) + 1) % nodes.length;
+      const connections: {idx: number, dist: number}[] = [];
+      
+      for (let j = 0; j < nodes.length; j++) {
+        if (i === j) continue;
+        const d = Math.sqrt(
+          Math.pow(nodes[i].position[0] - nodes[j].position[0], 2) +
+          Math.pow(nodes[i].position[1] - nodes[j].position[1], 2) +
+          Math.pow(nodes[i].position[2] - nodes[j].position[2], 2)
+        );
+        connections.push({idx: j, dist: d});
+      }
+
+      // Sort by distance and connect to 2 closest neighbors
+      connections.sort((a, b) => a.dist - b.dist);
+      for (let k = 0; k < 2; k++) {
         temp.push({
           start: nodes[i].position,
-          end: nodes[targetIndex].position,
+          end: nodes[connections[k].idx].position,
           color: nodes[i].color
         });
       }
@@ -100,25 +125,25 @@ function GraphContent() {
       {nodes.map((node) => (
         <Float
           key={`node-${node.id}`}
-          speed={1.5}
+          speed={node.id === 0 ? 0.5 : 1.5}
           rotationIntensity={0.5}
-          floatIntensity={1}
+          floatIntensity={node.id === 0 ? 0.2 : 1}
           position={node.position}
         >
-          <Sphere args={[0.7, 32, 32]}>
+          <Sphere args={[node.size, 32, 32]}>
             <MeshDistortMaterial
               color={node.color}
-              speed={3}
-              distort={0.4}
+              speed={node.id === 0 ? 2 : 3}
+              distort={node.id === 0 ? 0.2 : 0.4}
               radius={1}
               emissive={node.color}
-              emissiveIntensity={5}
+              emissiveIntensity={node.id === 0 ? 10 : 5}
             />
           </Sphere>
           
           <Text
-            position={[0, 1.5, 0]}
-            fontSize={0.5}
+            position={[0, node.size + 1, 0]}
+            fontSize={node.id === 0 ? 0.8 : 0.5}
             color="white"
             anchorX="center"
             anchorY="middle"
@@ -129,9 +154,10 @@ function GraphContent() {
           </Text>
 
           {/* Core glow point */}
-          <pointLight intensity={1} color={node.color} distance={5} />
+          <pointLight intensity={node.id === 0 ? 5 : 1} color={node.color} distance={node.id === 0 ? 15 : 5} />
         </Float>
       ))}
+
     </group>
   );
 }
