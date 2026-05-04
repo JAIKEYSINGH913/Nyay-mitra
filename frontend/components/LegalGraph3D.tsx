@@ -2,7 +2,7 @@
 
 import React, { useRef, useMemo } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { OrbitControls, Sphere, MeshDistortMaterial, Float, Text, Line, Stars } from "@react-three/drei";
+import { OrbitControls, Sphere, MeshDistortMaterial, Float, Text, Line, Stars, Html } from "@react-three/drei";
 import * as THREE from "three";
 
 const NODE_COUNT = 25; 
@@ -119,66 +119,78 @@ function GraphContent() {
   });
 
   return (
-    <group ref={groupRef}>
-      <Stars radius={100} depth={50} count={3000} factor={4} saturation={0} fade speed={1} />
-      <ambientLight intensity={1.5} />
-      <pointLight position={[15, 15, 15]} intensity={3} color="#ffffff" />
-      <directionalLight position={[0, 10, 0]} intensity={1.5} />
-      <pointLight position={[-15, -15, -15]} intensity={2} color="#ffffff" />
+    <>
+      <group ref={groupRef}>
+        <Stars radius={100} depth={50} count={3000} factor={4} saturation={0} fade speed={1} />
+        <ambientLight intensity={1.5} />
+        <pointLight position={[15, 15, 15]} intensity={3} color="#ffffff" />
+        <directionalLight position={[0, 10, 0]} intensity={1.5} />
+        <pointLight position={[-15, -15, -15]} intensity={2} color="#ffffff" />
 
-      {/* Industrial Grid Base (Cinematic) */}
-      <gridHelper args={[60, 60, "#ffffff", "#333333"]} position={[0, -12, 0]} />
+        {/* Industrial Grid Base (Cinematic) */}
+        <gridHelper args={[60, 60, "#ffffff", "#333333"]} position={[0, -12, 0]} />
 
-      {/* Render Edges - Cinematic Glow Lines */}
-      {edges.map((edge, i) => (
-        <Line
-          key={`edge-${i}`}
-          points={[edge.start, edge.end]}
-          color={edge.color}
-          lineWidth={2}
-          transparent
-          opacity={0.6}
-        />
-      ))}
+        {/* Render Edges - Cinematic Glow Lines */}
+        {edges.map((edge, i) => (
+          <Line
+            key={`edge-${i}`}
+            points={[edge.start, edge.end]}
+            color={edge.color}
+            lineWidth={2}
+            transparent
+            opacity={0.6}
+          />
+        ))}
 
-      {/* Render Nodes - High Contrast Spheres */}
-      {nodes.map((node) => (
-        <Float
-          key={`node-${node.id}`}
-          speed={node.id === 0 ? 0.5 : 1.5}
-          rotationIntensity={0.5}
-          floatIntensity={node.id === 0 ? 0.2 : 1}
-          position={node.position}
-        >
-          <Sphere args={[node.size, 32, 32]}>
-            <MeshDistortMaterial
-              color={node.color}
-              speed={node.id === 0 ? 2 : 3}
-              distort={node.id === 0 ? 0.2 : 0.4}
-              radius={1}
-              emissive={node.color}
-              emissiveIntensity={node.id === 0 ? 10 : 5}
-            />
-          </Sphere>
-          
-          <Text
-            position={[0, node.size + 1, 0]}
-            fontSize={node.id === 0 ? 0.8 : 0.5}
-            color="white"
-            anchorX="center"
-            anchorY="middle"
-            outlineWidth={0.08}
-            outlineColor="#000000"
+        {/* Render Nodes - High Contrast Spheres */}
+        {nodes.map((node) => (
+          <Float
+            key={`node-${node.id}`}
+            speed={node.id === 0 ? 0.5 : 1.5}
+            rotationIntensity={0.5}
+            floatIntensity={node.id === 0 ? 0.2 : 1}
+            position={node.position}
           >
-            {node.label}
-          </Text>
+            <Sphere args={[node.size, 32, 32]}>
+              <MeshDistortMaterial
+                color={node.color}
+                speed={node.id === 0 ? 2 : 3}
+                distort={node.id === 0 ? 0.2 : 0.4}
+                radius={1}
+                emissive={node.color}
+                emissiveIntensity={node.id === 0 ? 10 : 5}
+              />
+            </Sphere>
+            
+            <Text
+              position={[0, node.size + 1, 0]}
+              fontSize={node.id === 0 ? 0.8 : 0.5}
+              color="white"
+              anchorX="center"
+              anchorY="middle"
+              outlineWidth={0.08}
+              outlineColor="#000000"
+            >
+              {node.label}
+            </Text>
 
-          {/* Core glow point */}
-          <pointLight intensity={node.id === 0 ? 5 : 1} color={node.color} distance={node.id === 0 ? 15 : 5} />
-        </Float>
-      ))}
+            {/* Core glow point */}
+            <pointLight intensity={node.id === 0 ? 5 : 1} color={node.color} distance={node.id === 0 ? 15 : 5} />
+          </Float>
+        ))}
+      </group>
 
-    </group>
+      {/* HUD Overlays - Moved inside GraphContent to access edges.length */}
+      <Html fullscreen portal={{ current: document.body }} style={{ pointerEvents: 'none' }}>
+        <div className="absolute inset-0 z-10 p-10 flex flex-col justify-between">
+           <div className="flex justify-between items-start">
+              <div className="font-space text-[12px] text-white font-black tracking-[0.5em] bg-black/60 p-4 border-l-2 border-white/50 backdrop-blur-sm">NEURAL_GRAPH_HYDRATION_ACTIVE</div>
+              <div className="font-mono text-[10px] text-white/60 text-right uppercase bg-black/40 p-2 backdrop-blur-sm">NODES: {nodes.length}<br />EDGES: {edges.length}<br />SYNC_LEVEL: STABLE</div>
+           </div>
+           <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+        </div>
+      </Html>
+    </>
   );
 }
 
@@ -203,14 +215,6 @@ export default function LegalGraph3D() {
         </React.Suspense>
       </Canvas>
 
-      {/* HUD Overlays - Integrated directly to ensure visibility */}
-      <div className="absolute inset-0 z-10 pointer-events-none p-10 flex flex-col justify-between">
-         <div className="flex justify-between items-start">
-            <div className="font-space text-[12px] text-white font-black tracking-[0.5em] bg-black/60 p-4 border-l-2 border-white/50 backdrop-blur-sm">NEURAL_GRAPH_HYDRATION_ACTIVE</div>
-            <div className="font-mono text-[10px] text-white/60 text-right uppercase bg-black/40 p-2 backdrop-blur-sm">NODES: {NODE_COUNT}<br />EDGES: {edges.length}<br />SYNC_LEVEL: STABLE</div>
-         </div>
-         <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-      </div>
     </div>
   );
 }
