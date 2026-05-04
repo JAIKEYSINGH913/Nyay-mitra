@@ -45,14 +45,14 @@ function GraphContent() {
 
     // 2. Orbiting "Planet" Nodes (Scattered)
     for (let i = 1; i < NODE_COUNT; i++) {
-      const radius = 4 + Math.random() * 8; // Random radius between 4 and 12
+      const radius = 6 + Math.random() * 14; // Increased: Random radius between 6 and 20
       const angle = Math.random() * Math.PI * 2; // Random angle
       temp.push({
         id: i,
         position: [
-          Math.cos(angle) * radius + (Math.random() - 0.5) * 4,
-          (Math.random() - 0.5) * 16, // High vertical scattering
-          Math.sin(angle) * radius + (Math.random() - 0.5) * 4,
+          Math.cos(angle) * radius + (Math.random() - 0.5) * 8, // Increased jitter
+          (Math.random() - 0.5) * 25, // Increased vertical scattering (from 16 to 25)
+          Math.sin(angle) * radius + (Math.random() - 0.5) * 8, // Increased jitter
         ],
         color: COLORS[i % COLORS.length],
         label: labels[i % labels.length] || `PROTOCOL_${i}`,
@@ -166,7 +166,7 @@ export default function LegalGraph3D() {
   return (
     <div className="w-full h-full min-h-[600px] relative">
       <Canvas 
-        camera={{ position: [0, 8, 25], fov: 45 }}
+        camera={{ position: [0, 12, 35], fov: 45 }}
         gl={{ antialias: true, alpha: false }}
         onCreated={({ gl }) => {
           gl.setClearColor('#000000');
