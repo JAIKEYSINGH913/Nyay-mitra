@@ -64,7 +64,19 @@ function GraphContent() {
 
   const edges: Edge[] = useMemo(() => {
     const temp: Edge[] = [];
-    // Distance-based connections for a "Neural Mesh" feel
+    
+    // 1. SKELETON CONNECTIVITY: Ensure a single connected component
+    // Connect each node to the next one in the array to form a continuous path
+    for (let i = 0; i < nodes.length; i++) {
+      const nextIdx = (i + 1) % nodes.length;
+      temp.push({
+        start: nodes[i].position,
+        end: nodes[nextIdx].position,
+        color: nodes[i].color
+      });
+    }
+
+    // 2. NEURAL MESH: Add distance-based connections for visual complexity
     for (let i = 0; i < nodes.length; i++) {
       const connections: {idx: number, dist: number}[] = [];
       
@@ -78,7 +90,7 @@ function GraphContent() {
         connections.push({idx: j, dist: d});
       }
 
-      // Sort by distance and connect to 2 closest neighbors
+      // Sort by distance and connect to 2 closest neighbors for density
       connections.sort((a, b) => a.dist - b.dist);
       for (let k = 0; k < 2; k++) {
         temp.push({
