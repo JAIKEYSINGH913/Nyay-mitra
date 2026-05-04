@@ -43,17 +43,37 @@ function GraphContent() {
       size: 1.8
     });
 
-    // 2. Orbiting "Planet" Nodes (Scattered)
+    // 2. Orbiting "Planet" Nodes (Scattered with Spacing Logic)
     for (let i = 1; i < NODE_COUNT; i++) {
-      const radius = 6 + Math.random() * 14; // Increased: Random radius between 6 and 20
-      const angle = Math.random() * Math.PI * 2; // Random angle
+      let pos: [number, number, number] = [0, 0, 0];
+      let isTooClose = true;
+      let attempts = 0;
+
+      while (isTooClose && attempts < 100) {
+        const radius = 6 + Math.random() * 16; // Increased spread
+        const angle = Math.random() * Math.PI * 2;
+        const h = (Math.random() - 0.5) * 22; // Increased vertical scattering
+        
+        pos = [
+          Math.cos(angle) * radius,
+          h,
+          Math.sin(angle) * radius
+        ];
+
+        // Ensure minimum distance of 5.5 units from ALL other nodes
+        isTooClose = temp.some(n => {
+          const dx = n.position[0] - pos[0];
+          const dy = n.position[1] - pos[1];
+          const dz = n.position[2] - pos[2];
+          const dist = Math.sqrt(dx*dx + dy*dy + dz*dz);
+          return dist < 5.5; 
+        });
+        attempts++;
+      }
+
       temp.push({
         id: i,
-        position: [
-          Math.cos(angle) * radius + (Math.random() - 0.5) * 8, // Increased jitter
-          (Math.random() - 0.5) * 25, // Increased vertical scattering (from 16 to 25)
-          Math.sin(angle) * radius + (Math.random() - 0.5) * 8, // Increased jitter
-        ],
+        position: pos,
         color: COLORS[i % COLORS.length],
         label: labels[i % labels.length] || `PROTOCOL_${i}`,
         size: 0.4 + Math.random() * 0.8
@@ -166,7 +186,7 @@ export default function LegalGraph3D() {
   return (
     <div className="w-full h-full min-h-[600px] relative">
       <Canvas 
-        camera={{ position: [0, 12, 35], fov: 45 }}
+        camera={{ position: [0, 8, 25], fov: 45 }}
         gl={{ antialias: true, alpha: false }}
         onCreated={({ gl }) => {
           gl.setClearColor('#000000');
@@ -187,7 +207,7 @@ export default function LegalGraph3D() {
       <div className="absolute inset-0 z-10 pointer-events-none p-10 flex flex-col justify-between">
          <div className="flex justify-between items-start">
             <div className="font-space text-[12px] text-white font-black tracking-[0.5em] bg-black/60 p-4 border-l-2 border-white/50 backdrop-blur-sm">NEURAL_GRAPH_HYDRATION_ACTIVE</div>
-            <div className="font-mono text-[10px] text-white/60 text-right uppercase bg-black/40 p-2 backdrop-blur-sm">NODES: 24<br />EDGES: 48<br />SYNC_LEVEL: STABLE</div>
+            <div className="font-mono text-[10px] text-white/60 text-right uppercase bg-black/40 p-2 backdrop-blur-sm">NODES: {NODE_COUNT}<br />EDGES: {edges.length}<br />SYNC_LEVEL: STABLE</div>
          </div>
          <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
       </div>
