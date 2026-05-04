@@ -82,23 +82,42 @@ export default function NyayVaniPage() {
       const source = audioCtx.createMediaStreamSource(stream);
       source.connect(analyser);
       
-      // Setup MediaRecorder
+      // 1. Setup MediaRecorder for backend archival
       const mediaRecorder = new MediaRecorder(stream);
       mediaRecorderRef.current = mediaRecorder;
       audioChunksRef.current = [];
-      
       mediaRecorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          audioChunksRef.current.push(event.data);
-        }
+        if (event.data.size > 0) audioChunksRef.current.push(event.data);
       };
-
       mediaRecorder.onstop = async () => {
         const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
         await processAudio(audioBlob);
       };
-
       mediaRecorder.start();
+
+      // 2. Setup Web Speech API for INSTANT SMART TRANSCRIPTION
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      if (SpeechRecognition) {
+        const recognition = new SpeechRecognition();
+        recognition.lang = selectedLang === "hi" ? "hi-IN" : selectedLang === "ta" ? "ta-IN" : "te-IN";
+        recognition.continuous = true;
+        recognition.interimResults = true;
+
+        recognition.onresult = (event: any) => {
+          const transcript = Array.from(event.results)
+            .map((result: any) => result[0])
+            .map((result: any) => result.transcript)
+            .join("");
+          setInputTranscript(transcript);
+        };
+
+        recognition.onerror = (event: any) => {
+          console.error("Speech Recognition Error:", event.error);
+        };
+
+        recognition.start();
+        (window as any)._nyayRecognition = recognition;
+      }
       
       let lastUpdate = Date.now();
       const updateWaveform = () => {
@@ -130,56 +149,67 @@ export default function NyayVaniPage() {
   const processAudio = async (blob: Blob) => {
     setIsProcessing(true);
     try {
-      // 1. Convert Blob to Base64
-      const reader = new FileReader();
-      reader.readAsDataURL(blob);
-      reader.onloadend = async () => {
-        try {
-          const base64Audio = (reader.result as string).split(',')[1];
-          
-          // 2. Call STT API
-          const sttRes = await fetch("http://127.0.0.1:8003/api/vani/stt", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              audio_content: base64Audio,
-              language_code: selectedLang
-            })
-          });
-          const sttData = await sttRes.json();
-          const transcription = sttData.output.transcription;
-          setInputTranscript(transcription);
+      // 1. If we already have a transcript from the Browser Web Speech API, use it!
+      // This makes the system "Smart" and ultra-fast.
+      let transcription = inputTranscript;
+      
+      // 2. Only call backend STT if browser transcript is empty or placeholder
+      if (!transcription || transcription === "सुन रहा हूँ... (Listening...)") {
+        const reader = new FileReader();
+        reader.readAsDataURL(blob);
+        await new Promise((resolve) => (reader.onloadend = resolve));
+        const base64Audio = (reader.result as string).split(',')[1];
+        
+        const sttRes = await fetch("http://127.0.0.1:8003/api/vani/stt", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            audio_content: base64Audio,
+            language_code: selectedLang
+          })
+        });
+        const sttData = await sttRes.json();
+        transcription = sttData.output?.transcription || "";
+        setInputTranscript(transcription);
+      }
 
-          // 3. Call Translation API to Legal English
-          const transRes = await fetch("http://127.0.0.1:8003/api/vani/translate", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              text: transcription,
-              source_lang: selectedLang,
-              target_lang: "en"
-            })
-          });
-          const transData = await transRes.json();
-          setNeuralTranslation(transData.output.translated_text);
-          setHasRecorded(true);
-        } catch (err) {
-          console.error("[NYAY-VANI_ERROR] Processing failed:", err);
-          toast.error("Neural Bridge Timeout. Ensure Vani Service [8003] is live.");
-        } finally {
-          setIsProcessing(false);
-        }
-      };
-    } catch (error) {
-      console.error("Vani Processing Error:", error);
-      toast.error("Failed to process voice.");
+      // 3. Call Translation API to Legal English (Always needed)
+      if (transcription && !transcription.includes("[Server STT unavailable]")) {
+        const transRes = await fetch("http://127.0.0.1:8003/api/vani/translate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            text: transcription,
+            source_lang: selectedLang,
+            target_lang: "en"
+          })
+        });
+        const transData = await transRes.json();
+        setNeuralTranslation(transData.output?.translated_text || "Translation failed.");
+        setHasRecorded(true);
+      }
+    } catch (err) {
+      console.error("[NYAY-VANI_ERROR] Processing failed:", err);
+      toast.error("Neural Bridge Timeout. Ensure Vani Service [8003] is live.");
+    } finally {
+      setIsProcessing(false);
     }
   };
 
   const stopActualRecording = () => {
     setIsRecording(false);
     
-    // Cleanup Web Audio resources
+    // 1. Stop Browser Speech Recognition
+    if ((window as any)._nyayRecognition) {
+      try {
+        (window as any)._nyayRecognition.stop();
+        delete (window as any)._nyayRecognition;
+      } catch (e) {
+        console.error("Error stopping recognition:", e);
+      }
+    }
+
+    // 2. Cleanup Web Audio resources
     if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
     
     if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
