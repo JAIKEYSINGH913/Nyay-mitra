@@ -45,50 +45,20 @@ function GraphContent() {
 
     // 2. Orbiting "Planet" Nodes (Scattered)
     for (let i = 1; i < NODE_COUNT; i++) {
-      const radius = 6 + Math.random() * 10; // Increased radius range (6 to 16)
-      const angle = Math.random() * Math.PI * 2;
+      const radius = 4 + Math.random() * 8; // Random radius between 4 and 12
+      const angle = Math.random() * Math.PI * 2; // Random angle
       temp.push({
         id: i,
         position: [
-          Math.cos(angle) * radius + (Math.random() - 0.5) * 6,
-          (Math.random() - 0.5) * 18, // Slightly higher vertical variance
-          Math.sin(angle) * radius + (Math.random() - 0.5) * 6,
+          Math.cos(angle) * radius + (Math.random() - 0.5) * 4,
+          (Math.random() - 0.5) * 16, // High vertical scattering
+          Math.sin(angle) * radius + (Math.random() - 0.5) * 4,
         ],
         color: COLORS[i % COLORS.length],
         label: labels[i % labels.length] || `PROTOCOL_${i}`,
         size: 0.4 + Math.random() * 0.8
       });
     }
-
-    // 3. Collision Avoidance Loop: Spread overlapping nodes
-    const MIN_DIST = 5; // Minimum distance to prevent overlaps
-    for (let step = 0; step < 10; step++) {
-      for (let i = 0; i < temp.length; i++) {
-        for (let j = i + 1; j < temp.length; j++) {
-          const dx = temp[i].position[0] - temp[j].position[0];
-          const dy = temp[i].position[1] - temp[j].position[1];
-          const dz = temp[i].position[2] - temp[j].position[2];
-          const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
-          
-          if (dist < MIN_DIST) {
-            // Push them apart
-            const force = (MIN_DIST - dist) / (dist || 1) * 0.5;
-            const mx = dx * force;
-            const my = dy * force;
-            const mz = dz * force;
-            
-            temp[i].position[0] += mx;
-            temp[i].position[1] += my;
-            temp[i].position[2] += mz;
-            
-            temp[j].position[0] -= mx;
-            temp[j].position[1] -= my;
-            temp[j].position[2] -= mz;
-          }
-        }
-      }
-    }
-
     return temp;
   }, []);
 
