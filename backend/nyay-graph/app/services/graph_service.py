@@ -11,9 +11,9 @@ logger = logging.getLogger(__name__)
 
 class GraphService:
     def __init__(self):
-        self.neo4j_uri = os.getenv("NEO4J_URI", "bolt://localhost:7687")
-        self.neo4j_user = os.getenv("NEO4J_USER", os.getenv("NEO4J_USERNAME", "neo4j"))
-        self.neo4j_password = os.getenv("NEO4J_PASSWORD", "password")
+        self.neo4j_uri = os.getenv("NEO4J_URI")
+        self.neo4j_user = os.getenv("NEO4J_USER", os.getenv("NEO4J_USERNAME"))
+        self.neo4j_password = os.getenv("NEO4J_PASSWORD")
         self.neo4j_database = os.getenv("NEO4J_DATABASE", "neo4j")
         self.milvus_uri = os.getenv("MILVUS_URI", "http://localhost:19530")
         

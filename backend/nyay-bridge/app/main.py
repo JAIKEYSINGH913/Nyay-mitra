@@ -8,7 +8,7 @@ from app.services.mapping_service import MappingService
 from app.services.llama_service import LlamaService
 from dotenv import load_dotenv
 
-load_dotenv(os.path.join(os.path.dirname(__file__), '..', '..', '.env'))
+load_dotenv(os.path.join(os.path.dirname(__file__), '..', '..', '..', '.env'))
 
 from fastapi.middleware.cors import CORSMiddleware
 

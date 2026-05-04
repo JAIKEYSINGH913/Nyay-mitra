@@ -33,9 +33,9 @@ class MappingService:
         """Look up both IPC and corresponding BNS texts from Neo4j."""
         from neo4j import GraphDatabase
         
-        uri = os.getenv("NEO4J_URI", "bolt://localhost:7687")
-        user = os.getenv("NEO4J_USER", "neo4j")
-        password = os.getenv("NEO4J_PASSWORD", "password")
+        uri = os.getenv("NEO4J_URI")
+        user = os.getenv("NEO4J_USER")
+        password = os.getenv("NEO4J_PASSWORD")
         
         ipc_id = ipc_section if ipc_section.startswith("IPC_") else f"IPC_{ipc_section}"
         

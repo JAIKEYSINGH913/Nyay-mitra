@@ -37,33 +37,41 @@ Ensure you have the following installed:
 
 ## 🏃 Getting Started
 
-### 1. Frontend Setup (Dashboard)
+### 1. Environment Configuration
+Duplicate the `.env.example` file to `.env` in the root directory and fill in your credentials:
+```bash
+cp .env.example .env
+```
+
+### 2. Quick Launch (Recommended)
+Run the automated startup script to initialize all services (Frontend, Java Kernel, and Python AI services):
+```powershell
+.\launch_nyay.ps1
+```
+
+### 3. Manual Setup (Optional)
+If you prefer manual initialization, follow these steps:
+
+#### Frontend Setup (Dashboard)
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
-The UI will be available at `http://localhost:3000`.
 
-### 2. Core Kernel Setup (Java)
+#### Core Kernel Setup (Java)
 ```bash
 cd backend/nyay-kernel
-mvn clean install
 mvn spring-boot:run
 ```
 
-### 3. AI Microservices (Python)
-
-For each service (`nyay-vani`, `nyay-bridge`, `nyay-audit`):
+#### AI Microservices (Python)
+For each service (`nyay-vani`, `nyay-bridge`, `nyay-audit`, `nyay-graph`):
 ```bash
 cd backend/nyay-<service>
 pip install -r requirements.txt
-uvicorn app.main:app --host 0.0.0.0 --port <PORT>
+python -m uvicorn app.main:app --host 0.0.0.0 --port <PORT>
 ```
-*Default Ports:*
-- `nyay-vani`: 8000
-- `nyay-bridge`: 8001
-- `nyay-audit`: 8002
 
 ---
 

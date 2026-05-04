@@ -2,10 +2,10 @@
 
 Write-Host "--- Starting Nyay-Mitra Ecosystem ---" -ForegroundColor Cyan
 
-# Load .env file if it exists
-if (Test-Path "backend/.env") {
-    Write-Host "Loading environment variables from backend/.env..." -ForegroundColor Gray
-    Get-Content "backend/.env" | Where-Object { $_ -match "=" -and $_ -notmatch "^#" } | ForEach-Object {
+# Load .env file if it exists (Consolidated Root .env)
+if (Test-Path ".env") {
+    Write-Host "Loading environment variables from root .env..." -ForegroundColor Gray
+    Get-Content ".env" | Where-Object { $_ -match "=" -and $_ -notmatch "^#" } | ForEach-Object {
         $name, $value = $_.Split('=', 2)
         [System.Environment]::SetEnvironmentVariable($name.Trim(), $value.Trim(), "Process")
     }

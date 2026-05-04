@@ -6,9 +6,9 @@ load_dotenv(os.path.join(os.path.dirname(__file__), '..', '..', '..', '.env'))
 
 class GraphService:
     def __init__(self):
-        uri = os.getenv("NEO4J_URI", "bolt://localhost:7687")
-        user = os.getenv("NEO4J_USER", os.getenv("NEO4J_USERNAME", "neo4j"))
-        password = os.getenv("NEO4J_PASSWORD", "password")
+        uri = os.getenv("NEO4J_URI")
+        user = os.getenv("NEO4J_USER", os.getenv("NEO4J_USERNAME"))
+        password = os.getenv("NEO4J_PASSWORD")
         try:
             # Fix: neo4j+s:// fails cert verification on Python 3.14
             if "+s://" in uri and "+ssc://" not in uri:
