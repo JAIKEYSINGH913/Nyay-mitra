@@ -18,14 +18,24 @@ class GraphService:
         self.milvus_uri = os.getenv("MILVUS_URI", "http://localhost:19530")
         
         try:
-            neo4j_uri = self.neo4j_uri
-            # Fix: neo4j+s:// fails cert verification on Python 3.14
-            if "+s://" in neo4j_uri and "+ssc://" not in neo4j_uri:
-                neo4j_uri = neo4j_uri.replace("neo4j+s://", "neo4j+ssc://").replace("bolt+s://", "bolt+ssc://")
-            self.driver = GraphDatabase.driver(
-                neo4j_uri, 
-                auth=(self.neo4j_user, self.neo4j_password)
-            )
+            neo4j_uri = self.neo4j_uri or ""
+            # Try standard SSL first, fall back to skip-cert verification
+            try:
+                self.driver = GraphDatabase.driver(
+                    neo4j_uri,
+                    auth=(self.neo4j_user, self.neo4j_password)
+                )
+                # Verify connectivity immediately
+                self.driver.verify_connectivity()
+            except Exception:
+                # Fallback: use +ssc to skip SSL cert verification
+                if "+s://" in neo4j_uri and "+ssc://" not in neo4j_uri:
+                    fallback_uri = neo4j_uri.replace("neo4j+s://", "neo4j+ssc://").replace("bolt+s://", "bolt+ssc://")
+                    self.driver = GraphDatabase.driver(
+                        fallback_uri,
+                        auth=(self.neo4j_user, self.neo4j_password)
+                    )
+                    self.driver.verify_connectivity()
         except Exception as e:
             logger.error(f"Failed to connect to Neo4j: {e}")
             self.driver = None
@@ -214,18 +224,24 @@ class GraphService:
         
         # Fallback: filter mock data locally
         mock = self._get_mock_data()
+        # Normalize query: treat spaces same as underscores for matching
         q_upper = query.upper().strip()
+        q_normalized = q_upper.replace(" ", "_")
         
         # Find matching nodes
         matched_ids = set()
         for node in mock["nodes"]:
+            node_id_norm = node["id"].upper().replace(" ", "_")
+            node_name_norm = node["name"].upper().replace(" ", "_")
             if (q_upper in node["id"].upper() or 
                 q_upper in node["name"].upper() or 
+                q_normalized in node_id_norm or
+                q_normalized in node_name_norm or
                 q_upper in node.get("details", "").upper()):
                 matched_ids.add(node["id"])
         
         if not matched_ids:
-            # No match — return all mock data
+            # No exact match — return ALL mock data so graph is never empty
             return mock
         
         # Include linked neighbors
