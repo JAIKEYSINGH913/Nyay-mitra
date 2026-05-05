@@ -16,7 +16,7 @@ export const apiConfig = {
   sarvam: {
     apiKey: process.env.NEXT_PUBLIC_SARVAM_API_KEY || '',
   },
-  baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080',
+  baseUrl: 'https://nyay-python-gateway.fly.dev',
 };
 
 export const validateConfig = () => {

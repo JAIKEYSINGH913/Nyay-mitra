@@ -175,7 +175,7 @@ export default function NyayVaniPage() {
         const base64Audio = (reader.result as string).split(',')[1];
         
         try {
-          const sttRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8080"}/api/vani/stt`, {
+          const sttRes = await fetch(`https://nyay-python-gateway.fly.dev/api/vani/stt`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -207,7 +207,7 @@ export default function NyayVaniPage() {
 
       if (cleanTranscript && !cleanTranscript.includes("STT unavailable") && cleanTranscript.length > 1) {
         setNeuralTranslation("Analyzing neural signal...");
-        const queryRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8080"}/api/vani/query`, {
+        const queryRes = await fetch(`https://nyay-python-gateway.fly.dev/api/vani/query`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -310,7 +310,7 @@ export default function NyayVaniPage() {
     setNeuralTranslation("Translating...");
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8080"}/api/vani/query`, {
+      const res = await fetch(`https://nyay-python-gateway.fly.dev/api/vani/query`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
