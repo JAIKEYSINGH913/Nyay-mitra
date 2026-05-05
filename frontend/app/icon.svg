@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="cyan-glow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00f3ff" />
+      <stop offset="100%" stop-color="#0088ff" />
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="128" fill="#050505" />
+  <!-- Dynamic N Symbol -->
+  <path d="M160 370 V140 L350 370 V140" stroke="url(#cyan-glow)" stroke-width="48" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+  <!-- Sovereign Circle -->
+  <circle cx="256" cy="256" r="210" stroke="#00f3ff" stroke-width="16" opacity="0.4" fill="none" />
+  <circle cx="256" cy="256" r="180" stroke="#00f3ff" stroke-width="4" opacity="0.1" fill="none" stroke-dasharray="8 8" />
+</svg>
