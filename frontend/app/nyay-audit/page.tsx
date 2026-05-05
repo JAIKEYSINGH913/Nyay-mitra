@@ -90,7 +90,7 @@ export default function NyayAuditPage() {
     setKernelLogs([]);
 
     try {
-      const response = await fetch("http://127.0.0.1:8001/api/audit/verify", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8080"}/api/audit/verify`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text: inputText })
@@ -139,7 +139,7 @@ export default function NyayAuditPage() {
     formData.append("file", file);
 
     try {
-      const response = await fetch("http://127.0.0.1:8001/api/audit/upload-pdf", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8080"}/api/audit/upload-pdf`, {
         method: "POST",
         body: formData
       });
