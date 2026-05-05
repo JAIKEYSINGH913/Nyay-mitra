@@ -4,3 +4,6 @@ neo4j
 pymilvus
 pika
 python-dotenv
+google-generativeai
+httpx
+python-multipart
