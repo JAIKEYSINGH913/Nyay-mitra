@@ -122,7 +122,7 @@ export default function NyayBridgePage() {
     const sectionNum = sectionMatch ? sectionMatch[1] : ipcInput;
 
     try {
-      const response = await fetch(`https://nyay-python-gateway.fly.dev/api/bridge/map`, {
+      const response = await fetch(`http://localhost:8002/api/bridge/map`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

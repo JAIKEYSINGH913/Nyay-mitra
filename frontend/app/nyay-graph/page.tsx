@@ -58,8 +58,8 @@ export default function NyayGraphExplorer() {
       setLoading(true);
       try {
         const url = searchQuery 
-          ? `https://nyay-python-gateway.fly.dev/api/graph/search?q=${encodeURIComponent(searchQuery)}`
-          : `https://nyay-python-gateway.fly.dev/api/graph/data`;
+          ? `http://localhost:8004/api/graph/search?q=${encodeURIComponent(searchQuery)}`
+          : `http://localhost:8004/api/graph/data`;
         const graphRes = await fetch(url);
         const data = await graphRes.json();
         setGraphData(data);
@@ -76,7 +76,7 @@ export default function NyayGraphExplorer() {
   useEffect(() => {
     const fetchStatus = async () => {
       try {
-        const statusRes = await fetch(`https://nyay-python-gateway.fly.dev/api/graph/check`);
+        const statusRes = await fetch(`http://localhost:8004/api/graph/check`);
         const status = await statusRes.json();
         setDbStatus(status.neo4j?.status === "ONLINE" ? "ONLINE" : "OFFLINE");
       } catch { setDbStatus("OFFLINE"); }
@@ -88,7 +88,7 @@ export default function NyayGraphExplorer() {
     setSelectedNode(node);
     setAdvisory(null);
     try {
-      const res = await fetch(`https://nyay-python-gateway.fly.dev/api/graph/advisory/${node.id}`);
+      const res = await fetch(`http://localhost:8004/api/graph/advisory/${node.id}`);
       const data = await res.json();
       setAdvisory(data);
     } catch (e) {
