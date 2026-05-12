@@ -7,3 +7,6 @@ python-dotenv
 google-generativeai
 httpx
 python-multipart
+pydantic
+python-jose[cryptography]
+numpy
