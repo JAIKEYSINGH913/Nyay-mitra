@@ -10,3 +10,7 @@ python-multipart
 pydantic
 python-jose[cryptography]
 numpy
+PyPDF2
+msgspec
+pandas
+python-jose
