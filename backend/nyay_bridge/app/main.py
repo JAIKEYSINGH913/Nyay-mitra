@@ -4,8 +4,8 @@ import time
 import json
 import os
 from typing import List, Optional, Dict, Any
-from app.services.mapping_service import MappingService
-from app.services.llama_service import LlamaService
+from nyay_bridge.app.services.mapping_service import MappingService
+from nyay_bridge.app.services.llama_service import LlamaService
 from dotenv import load_dotenv
 
 load_dotenv(os.path.join(os.path.dirname(__file__), '..', '..', '..', '.env'))

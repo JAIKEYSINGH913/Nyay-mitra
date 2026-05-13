@@ -7,8 +7,8 @@ import time
 import os
 from msgspec import json
 from typing import List, Dict, Any, Optional
-from app.services.ner_service import NERService
-from app.services.graph_service import GraphService
+from nyay_audit.app.services.ner_service import NERService
+from nyay_audit.app.services.graph_service import GraphService
 import re
 from dotenv import load_dotenv
 from jose import jwt
