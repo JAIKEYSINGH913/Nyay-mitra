@@ -29,7 +29,6 @@ export default function Footer() {
           setVisitorCount(data.count);
         }
       } catch (err) {
-        console.warn("Visitor counter API fallback:", err);
         const localCount = localStorage.getItem("nyay_real_visitors");
         const count = localCount ? parseInt(localCount, 10) + 1 : 1;
         localStorage.setItem("nyay_real_visitors", count.toString());

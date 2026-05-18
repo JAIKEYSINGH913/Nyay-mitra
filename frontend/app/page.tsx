@@ -44,7 +44,6 @@ export default function HomePage() {
         const user = await Promise.race([userPromise, timeoutPromise]);
         setIsLoggedIn(!!user);
       } catch (err) {
-        console.warn("Auth check failed or timed out:", err);
         setIsLoggedIn(false);
       }
     };
@@ -52,7 +51,7 @@ export default function HomePage() {
   }, []);
 
   return (
-    <div ref={containerRef} className="relative bg-bg-primary transition-colors overflow-x-hidden min-h-screen">
+    <div ref={containerRef} style={{ position: "relative" }} className="relative bg-bg-primary transition-colors overflow-x-hidden min-h-screen">
       <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} onSuccess={() => setIsLoggedIn(true)} />
 
       {/* HERO SECTION */}
