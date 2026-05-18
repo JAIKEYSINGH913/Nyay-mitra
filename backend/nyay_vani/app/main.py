@@ -3,7 +3,7 @@ from pydantic import BaseModel
 import time
 import os
 from typing import List, Dict, Any, Optional
-from nyay_vani.app.services.voice_service import VoiceService
+from app.services.voice_service import VoiceService
 from dotenv import load_dotenv
 
 load_dotenv(os.path.join(os.path.dirname(__file__), '..', '..', '..', '.env'))

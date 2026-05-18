@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from nyay_graph.app.services.graph_service import GraphService
-from nyay_graph.app.services.seed_data import seed_neo4j
+from app.services.graph_service import GraphService
+from app.services.seed_data import seed_neo4j
 from dotenv import load_dotenv
 import os
 
