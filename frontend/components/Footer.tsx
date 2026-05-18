@@ -129,10 +129,19 @@ export default function Footer() {
                   className="h-full bg-primary-container"
                 />
              </div>
-             <div className="font-mono text-[10px] text-text-muted leading-tight">
+             <div className="font-mono text-[10px] text-text-muted leading-relaxed mb-4 border-b border-border-color/30 pb-4">
                 UPTIME: 99.998%<br />
                 REGION: IN_WEST_ALPHA<br />
                 NODES: 1,244,012
+             </div>
+             <div className="flex items-center justify-between pt-1">
+                <span className="telemetry-label !text-[8px] flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  VISITORS
+                </span>
+                <span className="font-mono text-xs font-black text-primary-container bg-black/40 px-2 py-0.5 border border-white/10">
+                  {visitorCount.toLocaleString()}
+                </span>
              </div>
           </div>
         </div>
@@ -143,13 +152,6 @@ export default function Footer() {
            <span className="telemetry-label !text-[10px] opacity-40 font-black">© 2026 NYAY-MITRA // INDUSTRIAL_COMPUTING</span>
         </div>
         <div className="flex items-center gap-6 md:gap-10 flex-wrap justify-end">
-           {/* Live Visitor Counter Widget */}
-           <div className="flex items-center gap-2 bg-bg-surface-low border border-border-color px-4 py-2.5 rounded-none shadow-inner">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="font-space text-[10px] font-bold tracking-[0.2em] text-text-secondary uppercase flex items-center gap-2">
-                 PAGE_VISITORS: <span className="text-primary-container font-mono text-xs font-black bg-black/40 px-2 py-0.5 border border-white/10">{visitorCount.toLocaleString()}</span>
-              </span>
-           </div>
 
            <div className="relative">
              <button 
