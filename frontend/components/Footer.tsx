@@ -18,21 +18,21 @@ import SystemReportGenerator from "./SystemReportGenerator";
 export default function Footer() {
   const telemetry = useTelemetry();
   const [showBreakdown, setShowBreakdown] = useState(false);
-  const [visitorCount, setVisitorCount] = useState(12458);
+  const [visitorCount, setVisitorCount] = useState(1);
 
   useEffect(() => {
     const fetchVisitorCount = async () => {
       try {
-        const res = await fetch("https://api.counterapi.dev/v1/nyaymitra/visitor_count");
+        const res = await fetch("https://api.counterapi.dev/v1/nyaymitra/visitor_count", { mode: "cors" });
         const data = await res.json();
-        if (data && data.count) {
-          setVisitorCount(12450 + data.count);
+        if (data && typeof data.count === "number") {
+          setVisitorCount(data.count);
         }
       } catch (err) {
         console.warn("Visitor counter API fallback:", err);
-        const localCount = localStorage.getItem("nyay_visitors");
-        const count = localCount ? parseInt(localCount, 10) + 1 : 12459;
-        localStorage.setItem("nyay_visitors", count.toString());
+        const localCount = localStorage.getItem("nyay_real_visitors");
+        const count = localCount ? parseInt(localCount, 10) + 1 : 1;
+        localStorage.setItem("nyay_real_visitors", count.toString());
         setVisitorCount(count);
       }
     };

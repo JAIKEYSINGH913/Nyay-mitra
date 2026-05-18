@@ -1,6 +1,6 @@
 "use client";
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { validateConfig } from '@/config/apiConfig';
+import { apiConfig, validateConfig } from '@/config/apiConfig';
 
 interface TelemetryState {
   status: 'DETERMINISTIC' | 'SYNCING' | 'OFFLINE' | 'KERNEL_ERROR';
@@ -47,7 +47,7 @@ export const TelemetryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const checkHealth = async () => {
       try {
         const start = Date.now();
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/health`);
+        const response = await fetch(`${apiConfig.baseUrl}/health`);
         const data = await response.json();
         const end = Date.now();
         
