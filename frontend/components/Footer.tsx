@@ -12,7 +12,7 @@ import {
   Globe
 } from "lucide-react";
 import { useTelemetry } from "./TelemetryProvider";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import SystemReportGenerator from "./SystemReportGenerator";
 
 export default function Footer() {
